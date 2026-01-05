@@ -1,0 +1,65 @@
+---
+// Theme toggle component with inline script for instant theme switching
+---
+
+<div class="flex items-center gap-2 mb-6">
+  <button
+    id="theme-toggle"
+    class="relative w-12 h-6 bg-gray-300 dark:bg-gray-600 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+    aria-label="Toggle theme"
+  >
+    <div
+      id="theme-toggle-dot"
+      class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-200"
+    ></div>
+  </button>
+  <span id="theme-label" class="text-sm text-gray-600 dark:text-gray-400">
+    Light Mode
+  </span>
+</div>
+
+<script>
+  const toggle = document.getElementById('theme-toggle');
+  const dot = document.getElementById('theme-toggle-dot');
+  const label = document.getElementById('theme-label');
+
+  function updateUI() {
+    const isDark = document.documentElement.classList.contains('dark');
+    console.log('Theme is:', isDark ? 'dark' : 'light');
+
+    // Update label
+    if (label) {
+      label.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+    }
+
+    // Update dot position
+    if (dot) {
+      if (isDark) {
+        dot.style.transform = 'translateX(24px)';
+      } else {
+        dot.style.transform = 'translateX(0)';
+      }
+    }
+  }
+
+  toggle?.addEventListener('click', () => {
+    const isDark = document.documentElement.classList.contains('dark');
+    console.log('Toggling from:', isDark ? 'dark' : 'light');
+
+    if (isDark) {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+      console.log('Switched to light mode');
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+      console.log('Switched to dark mode');
+    }
+
+    updateUI();
+  });
+
+  // Initialize on page load
+  console.log('ThemeToggle initialized');
+  updateUI();
+</script>

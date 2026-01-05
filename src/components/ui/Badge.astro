@@ -1,0 +1,19 @@
+---
+interface Props {
+  variant?: 'category' | 'tech';
+  class?: string;
+}
+
+const { variant = 'category', class: className = '' } = Astro.props;
+
+const variants = {
+  category: 'bg-accent/10 text-accent',
+  tech: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+};
+
+const classes = `inline-block px-2 py-1 text-xs font-medium rounded ${variants[variant]} ${className}`;
+---
+
+<span class={classes}>
+  <slot />
+</span>
