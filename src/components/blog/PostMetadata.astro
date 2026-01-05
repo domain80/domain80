@@ -1,0 +1,41 @@
+---
+interface Props {
+  author: string;
+  authorAvatar?: string;
+  pubDate: Date;
+  updatedDate?: Date;
+}
+
+const { author, authorAvatar, pubDate, updatedDate } = Astro.props;
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+}
+---
+
+<div class="flex items-center gap-3">
+  {authorAvatar ? (
+    <img
+      src={authorAvatar}
+      alt={author}
+      class="w-10 h-10 rounded-full"
+    />
+  ) : (
+    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-accent-light to-accent flex items-center justify-center text-white font-semibold">
+      {author.charAt(0)}
+    </div>
+  )}
+
+  <div class="text-sm">
+    <p class="font-medium text-gray-900 dark:text-gray-100">
+      {author}
+    </p>
+    <p class="text-gray-600 dark:text-gray-400">
+      Last Updated {formatDate(updatedDate || pubDate)}
+    </p>
+  </div>
+</div>
