@@ -1,11 +1,68 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import { getCollection } from "astro:content";
+import BlogCard from "../components/blog/BlogCard.astro";
+import ProjectCard from "../components/portfolio/ProjectCard.astro";
+import HomeLayout from "../layouts/HomeLayout.astro";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// Get latest blog posts
+const allPosts = await getCollection("blog");
+const latestPosts = allPosts
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+
+// Get featured projects
+const allProjects = await getCollection("projects");
+const featuredProjects = allProjects
+  .filter((project) => project.data.featured)
+  .sort((a, b) => (a.data.order || 999) - (b.data.order || 999))
+  .slice(0, 3);
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<HomeLayout title="Home">
+  <!-- Latest Posts Section -->
+  <section id="whats-on-my-mind" class="mb-86 mt-34 scroll-mt-48">
+    <h2
+      class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 scroll-mt-40"
+    >
+      Latest Posts
+    </h2>
+    <div class="space-y-4">
+      {
+        latestPosts.map((post) => (
+          <BlogCard
+            title={post.data.title}
+            description={post.data.description}
+            slug={post.id}
+          />
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Projects Section -->
+  <section id="projects" class="scroll-mt-48">
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+      Projects
+    </h2>
+    <div>
+      {
+        featuredProjects.map((project, index) => (
+          <div class="min-h-screen mb-8">
+            <div class="sticky top-8">
+              <ProjectCard
+                title={project.data.title}
+                description={project.data.description}
+                year={project.data.year}
+                endYear={project.data.endYear}
+                tags={project.data.tags}
+                link={project.data.link}
+                slug={project.id}
+              />
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</HomeLayout>
