@@ -1,6 +1,6 @@
 ---
-import BaseLayout from './BaseLayout.astro';
-import Sidebar from '../components/layout/Sidebar.astro';
+import Sidebar from "../components/layout/Sidebar.astro";
+import BaseLayout from "./BaseLayout.astro";
 
 interface Props {
   title: string;
@@ -8,7 +8,7 @@ interface Props {
 ---
 
 <BaseLayout title={Astro.props.title}>
-  <div class="min-h-screen bg-white dark:bg-gray-900">
+  <div class="min-h-screen">
     <div class="max-w-5xl mx-auto px-6 py-12">
       <div class="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-12">
         <!-- Left Sidebar -->

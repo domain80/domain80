@@ -1,6 +1,6 @@
 ---
-import ThemeToggle from '../ui/ThemeToggle.astro';
-import Button from '../ui/Button.astro';
+import ThemeToggle from "../ui/ThemeToggle.astro";
+import Button from "../ui/Button.astro";
 ---
 
 <div class="space-y-6">
@@ -9,7 +9,7 @@ import Button from '../ui/Button.astro';
 
   <!-- Name and Title -->
   <div class="space-y-2">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+    <h1 class="text-5xl font-bold text-gray-900 dark:text-gray-100">
       David Mainoo
     </h1>
     <p class="text-gray-600 dark:text-gray-400 font-medium">
@@ -19,26 +19,37 @@ import Button from '../ui/Button.astro';
 
   <!-- Bio -->
   <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-    It is no surprise that the AI age has mode us rediscover and realign with why we do what we do as software engineers giving us an opportunity to grow and evolve. Hi there and what a time to be alive.
+    It is no surprise that the AI age has mode us rediscover and realign with
+    why we do what we do as software engineers giving us an opportunity to grow
+    and evolve. Hi there and what a time to be alive.
   </p>
 
   <!-- CTA Buttons -->
   <div class="flex flex-wrap gap-3">
     <Button href="#" variant="outline">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+      <svg
+        class="w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+        ></path>
       </svg>
       Let's talk
-    </Button>
-    <Button href="#" variant="primary">
-      My work
     </Button>
     <a
       href="/rss.xml"
       class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-amber-600 dark:text-amber-500 hover:text-amber-700 dark:hover:text-amber-400 transition-colors rounded-lg"
     >
       <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M6.503 20.752c0 1.794-1.456 3.248-3.251 3.248-1.796 0-3.252-1.454-3.252-3.248 0-1.794 1.456-3.248 3.252-3.248 1.795.001 3.251 1.454 3.251 3.248zm-6.503-12.572v4.811c6.05.062 10.96 4.966 11.022 11.009h4.817c-.062-8.71-7.118-15.758-15.839-15.82zm0-3.368c10.58.046 19.152 8.594 19.183 19.188h4.817c-.03-13.231-10.755-23.954-24-24v4.812z"/>
+        <path
+          d="M6.503 20.752c0 1.794-1.456 3.248-3.251 3.248-1.796 0-3.252-1.454-3.252-3.248 0-1.794 1.456-3.248 3.252-3.248 1.795.001 3.251 1.454 3.251 3.248zm-6.503-12.572v4.811c6.05.062 10.96 4.966 11.022 11.009h4.817c-.062-8.71-7.118-15.758-15.839-15.82zm0-3.368c10.58.046 19.152 8.594 19.183 19.188h4.817c-.03-13.231-10.755-23.954-24-24v4.812z"
+        ></path>
       </svg>
       Subscribe via RSS
     </a>
@@ -52,8 +63,11 @@ import Button from '../ui/Button.astro';
       class="nav-link flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent transition-colors"
     >
       <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+        <path
+          fill-rule="evenodd"
+          d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+          clip-rule="evenodd"></path>
       </svg>
       What's on my mind?
     </a>
@@ -63,7 +77,9 @@ import Button from '../ui/Button.astro';
       class="nav-link flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent transition-colors"
     >
       <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/>
+        <path
+          d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"
+        ></path>
       </svg>
       Projects
     </a>
@@ -73,41 +89,43 @@ import Button from '../ui/Button.astro';
     // Intersection Observer for active nav highlighting
     const observerOptions = {
       root: null,
-      rootMargin: '-20% 0px -60% 0px',
-      threshold: 0
+      rootMargin: "-20% 0px -60% 0px",
+      threshold: 0,
     };
 
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
+      entries.forEach((entry) => {
         if (entry.isIntersecting) {
           // Remove active class from all nav links
-          document.querySelectorAll('.nav-link').forEach(link => {
-            link.classList.remove('text-accent', 'font-semibold');
-            link.classList.add('text-gray-700', 'dark:text-gray-300');
+          document.querySelectorAll(".nav-link").forEach((link) => {
+            link.classList.remove("text-accent", "font-semibold");
+            link.classList.add("text-gray-700", "dark:text-gray-300");
           });
 
           // Add active class to current nav link
           const sectionId = entry.target.id;
-          const activeLink = document.querySelector(`[data-nav-link="${sectionId}"]`);
+          const activeLink = document.querySelector(
+            `[data-nav-link="${sectionId}"]`
+          );
           if (activeLink) {
-            activeLink.classList.add('text-accent', 'font-semibold');
-            activeLink.classList.remove('text-gray-700', 'dark:text-gray-300');
+            activeLink.classList.add("text-accent", "font-semibold");
+            activeLink.classList.remove("text-gray-700", "dark:text-gray-300");
           }
         }
       });
     }, observerOptions);
 
     // Observe all sections
-    const sections = document.querySelectorAll('#whats-on-my-mind, #projects');
-    sections.forEach(section => observer.observe(section));
+    const sections = document.querySelectorAll("#whats-on-my-mind, #projects");
+    sections.forEach((section) => observer.observe(section));
 
     // Smooth scroll on click
-    document.querySelectorAll('.nav-link').forEach(link => {
-      link.addEventListener('click', (e) => {
+    document.querySelectorAll(".nav-link").forEach((link) => {
+      link.addEventListener("click", (e) => {
         e.preventDefault();
-        const targetId = link.getAttribute('href')?.substring(1);
-        const target = document.getElementById(targetId || '');
-        target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const targetId = link.getAttribute("href")?.substring(1);
+        const target = document.getElementById(targetId || "");
+        target?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     });
   </script>
@@ -123,7 +141,9 @@ import Button from '../ui/Button.astro';
         aria-label="GitHub"
       >
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          <path
+            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+          ></path>
         </svg>
       </a>
       <a
@@ -134,7 +154,9 @@ import Button from '../ui/Button.astro';
         aria-label="LinkedIn"
       >
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+          <path
+            d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
+          ></path>
         </svg>
       </a>
     </div>
@@ -148,7 +170,9 @@ import Button from '../ui/Button.astro';
   </div>
 
   <!-- Copyright -->
-  <p class="text-xs text-gray-500 dark:text-gray-500 pt-6 border-t border-gray-200 dark:border-gray-800">
+  <p
+    class="text-xs text-gray-500 dark:text-gray-500 pt-6 border-t border-gray-200 dark:border-gray-800"
+  >
     © Copyright 2025, David Mainoo.
   </p>
 </div>

@@ -39,11 +39,12 @@
 
   html {
     font-size: 16px;
+    @apply bg-white dark:bg-gray-900;
   }
 
   body {
     font-family: var(--font-sans);
-    @apply text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900;
+    @apply min-h-screen text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900;
   }
 
   h1,
