@@ -8,8 +8,16 @@ category: "Programming"
 tags: ["career", "mindset", "beginners"]
 featured: true
 ---
-
 ## Rule 1: Know Yourself
+
+Understandably, I was in an existential slump.
+
+An old friend of mine suggested I get back into drawing. For as long as I can remember I have doodled all over anything I could. Before getting into poetry, I wanted to be an animator or a cartoonist.
+
+The "funnies" were my favorite section of the newspaper. I read them daily, especially on Sunday. I often doodled characters and comics when I should have been paying attention in class.
+
+
+### Rule 1b: Know Yourself Again
 
 Understandably, I was in an existential slump.
 

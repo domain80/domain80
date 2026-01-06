@@ -1,5 +1,5 @@
 ---
-import type { MarkdownHeading } from 'astro';
+import type { MarkdownHeading } from "astro";
 
 interface Props {
   headings: MarkdownHeading[];
@@ -8,70 +8,72 @@ interface Props {
 const { headings } = Astro.props;
 
 // Filter to h2 and h3 only
-const toc = headings.filter(h => h.depth <= 3);
+const toc = headings.filter((h) => h.depth <= 3);
 ---
 
-{toc.length > 0 && (
-  <nav class="sticky top-12 space-y-4" aria-label="Table of contents">
-    <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100">
-      Table of contents
-    </h2>
-    <ul class="space-y-2 text-sm">
-      {toc.map(heading => (
-        <li class={heading.depth === 3 ? 'pl-4' : ''}>
-          <a
-            href={`#${heading.slug}`}
-            class="toc-link block text-gray-600 dark:text-gray-400 hover:text-accent dark:hover:text-accent transition-colors"
-            data-heading={heading.slug}
-          >
-            {heading.text}
-          </a>
-        </li>
-      ))}
-    </ul>
-  </nav>
-)}
+{
+  toc.length > 0 && (
+    <nav class="space-y-4" aria-label="Table of contents">
+      <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+        Table of contents
+      </h2>
+      <ul class="space-y-2 text-sm">
+        {toc.map((heading) => (
+          <li class={heading.depth === 3 ? "pl-4" : ""}>
+            <a
+              href={`#${heading.slug}`}
+              class="toc-link block text-gray-600 dark:text-gray-400 hover:text-accent dark:hover:text-accent transition-colors"
+              data-heading={heading.slug}
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
 
 <script>
   // Intersection Observer for active highlighting
   const observer = new IntersectionObserver(
     (entries) => {
-      entries.forEach(entry => {
-        const id = entry.target.getAttribute('id');
+      entries.forEach((entry) => {
+        const id = entry.target.getAttribute("id");
         const tocLink = document.querySelector(`a[data-heading="${id}"]`);
 
         if (entry.isIntersecting) {
           // Remove active from all
-          document.querySelectorAll('.toc-link').forEach(link => {
-            link.classList.remove('text-accent', 'font-medium');
-            link.classList.add('text-gray-600', 'dark:text-gray-400');
+          document.querySelectorAll(".toc-link").forEach((link) => {
+            link.classList.remove("text-accent", "font-medium");
+            link.classList.add("text-gray-600", "dark:text-gray-400");
           });
 
           // Add active to current
-          tocLink?.classList.add('text-accent', 'font-medium');
-          tocLink?.classList.remove('text-gray-600', 'dark:text-gray-400');
+          tocLink?.classList.add("text-accent", "font-medium");
+          tocLink?.classList.remove("text-gray-600", "dark:text-gray-400");
         }
       });
     },
     {
-      rootMargin: '-100px 0px -66%',
-      threshold: 1.0
+      rootMargin: "-100px 0px -66%",
+      threshold: 1.0,
     }
   );
 
   // Observe all headings
-  document.querySelectorAll('article h2, article h3').forEach((heading) => {
+  document.querySelectorAll("article h2, article h3").forEach((heading) => {
     observer.observe(heading);
   });
 
   // Smooth scroll on click
-  document.querySelectorAll('.toc-link').forEach(link => {
-    link.addEventListener('click', (e) => {
+  document.querySelectorAll(".toc-link").forEach((link) => {
+    link.addEventListener("click", (e) => {
       e.preventDefault();
-      const id = link.getAttribute('data-heading');
-      const target = document.getElementById(id || '');
-      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      history.pushState(null, '', `#${id}`);
+      const id = link.getAttribute("data-heading");
+      const target = document.getElementById(id || "");
+      target?.scrollIntoView({ behavior: "smooth", block: "start" });
+      history.pushState(null, "", `#${id}`);
     });
   });
 </script>
