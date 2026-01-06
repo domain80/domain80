@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { ViewTransitions } from 'astro:transitions';
 
 interface Props {
   title: string;
@@ -27,6 +28,65 @@ const siteTitle = `${title} | David Mainoo`;
     {image && <meta property="og:image" content={image} />}
     <meta property="og:type" content="website" />
 
+    <!-- View Transitions -->
+    <ViewTransitions fallback="swap" />
+
+    <style>
+      /* Custom page transition animations */
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+        }
+      }
+
+      @keyframes fade-out {
+        to {
+          opacity: 0;
+        }
+      }
+
+      @keyframes slide-from-right {
+        from {
+          transform: translateX(30px);
+        }
+      }
+
+      @keyframes slide-to-left {
+        to {
+          transform: translateX(-30px);
+        }
+      }
+
+      ::view-transition-old(root) {
+        animation: 180ms cubic-bezier(0.4, 0, 1, 1) both fade-out,
+          300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-to-left;
+      }
+
+      ::view-transition-new(root) {
+        animation: 420ms cubic-bezier(0, 0, 0.2, 1) 90ms both fade-in,
+          300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-from-right;
+      }
+
+      /* Reduce motion for accessibility */
+      @media (prefers-reduced-motion) {
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+          animation: none !important;
+        }
+      }
+
+      /* Dark mode transition support */
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        mix-blend-mode: normal;
+      }
+
+      .dark ::view-transition-old(root),
+      .dark ::view-transition-new(root) {
+        mix-blend-mode: normal;
+      }
+    </style>
+
     <!-- Prevent FOUC for dark mode -->
     <script is:inline>
       const theme = (() => {
@@ -42,6 +102,16 @@ const siteTitle = `${title} | David Mainoo`;
       if (theme === 'dark') {
         document.documentElement.classList.add('dark');
       }
+
+      // Persist theme across page transitions
+      document.addEventListener('astro:after-swap', () => {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      });
     </script>
   </head>
   <body>
