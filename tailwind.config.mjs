@@ -4,5 +4,12 @@ export default {
   darkMode: 'class',
   plugins: [
     require('@tailwindcss/typography'),
+    require('daisyui'),
   ],
+  daisyui: {
+    themes: false, // Disable DaisyUI themes to use our custom theme
+    base: false, // Disable DaisyUI base styles
+    styled: true, // Use DaisyUI styled components
+    utils: true, // Use DaisyUI utility classes
+  },
 };

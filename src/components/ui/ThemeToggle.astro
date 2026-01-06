@@ -1,19 +1,14 @@
 ---
-// Theme toggle component with inline script for instant theme switching
+// Theme toggle component using DaisyUI toggle
 ---
 
-<div class="flex items-center gap-2 mb-6">
-  <button
+<div class="flex items-center gap-3">
+  <input
+    type="checkbox"
     id="theme-toggle"
-    class="relative w-12 h-6 bg-gray-300 dark:bg-gray-600 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
-    aria-label="Toggle theme"
-  >
-    <div
-      id="theme-toggle-dot"
-      class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-200"
-    >
-    </div>
-  </button>
+    class="toggle toggle-accent"
+    aria-label="Toggle dark mode"
+  />
   <span id="theme-label" class="text-sm text-gray-600 dark:text-gray-400">
     Light Mode
   </span>
@@ -23,29 +18,26 @@
   (function () {
     function initThemeToggle() {
       const toggle = document.getElementById("theme-toggle");
-      const dot = document.getElementById("theme-toggle-dot");
       const label = document.getElementById("theme-label");
 
-      if (!toggle || !dot || !label) {
+      if (!toggle || !label) {
         console.error("Theme toggle elements not found");
         return;
       }
 
       function updateUI() {
         const isDark = document.documentElement.classList.contains("dark");
-        label.textContent = isDark ? "Dark Theme" : "Light Theme";
-        dot.style.transform = isDark ? "translateX(24px)" : "translateX(0)";
+        toggle.checked = isDark;
+        label.textContent = isDark ? "Dark Mode" : "Light Mode";
       }
 
-      toggle.addEventListener("click", function () {
-        const isDark = document.documentElement.classList.contains("dark");
-
-        if (isDark) {
-          document.documentElement.classList.remove("dark");
-          localStorage.setItem("theme", "light");
-        } else {
+      toggle.addEventListener("change", function () {
+        if (toggle.checked) {
           document.documentElement.classList.add("dark");
           localStorage.setItem("theme", "dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+          localStorage.setItem("theme", "light");
         }
 
         updateUI();
@@ -61,5 +53,8 @@
     } else {
       initThemeToggle();
     }
+
+    // Re-initialize after page transitions
+    document.addEventListener("astro:after-swap", initThemeToggle);
   })();
 </script>
