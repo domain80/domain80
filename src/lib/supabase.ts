@@ -32,3 +32,11 @@ export interface PostLike {
   user_id: string;
   created_at: string;
 }
+
+export interface CommentReaction {
+  id: string;
+  comment_id: string;
+  user_id: string;
+  reaction_type: 'like' | 'dislike';
+  created_at: string;
+}

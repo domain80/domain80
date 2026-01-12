@@ -9,7 +9,25 @@ const { slug } = Astro.props;
 ---
 
 <section class="comment-section mt-16 pt-8 border-t border-zinc-200 dark:border-zinc-800" data-slug={slug}>
-  <h2 class="text-2xl font-bold mb-6 text-zinc-900 dark:text-zinc-100">Comments</h2>
+  <!-- Comments Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-2">
+      <h2 class="text-base font-semibold text-zinc-900 dark:text-zinc-100">Comments</h2>
+      <span id="comment-count" class="bg-accent text-white text-xs px-2 py-0.5 rounded-full">0</span>
+    </div>
+    <div class="relative">
+      <button id="sort-btn" class="flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>
+        <span id="sort-label">Most recent</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      </button>
+      <div id="sort-dropdown" class="hidden absolute right-0 mt-1 bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 py-1 min-w-[140px] z-10">
+        <button data-sort="recent" class="w-full px-3 py-1.5 text-left text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700">Most recent</button>
+        <button data-sort="oldest" class="w-full px-3 py-1.5 text-left text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700">Oldest</button>
+        <button data-sort="popular" class="w-full px-3 py-1.5 text-left text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700">Most liked</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Auth -->
   <div class="mb-8">
@@ -18,23 +36,50 @@ const { slug } = Astro.props;
 
   <!-- Comment Form (shown when logged in) -->
   <div id="comment-form-container" class="hidden mb-8">
-    <form id="comment-form" class="space-y-4">
+    <form id="comment-form" class="bg-zinc-100 dark:bg-zinc-800 rounded-lg p-4">
       <textarea
         id="comment-input"
         name="content"
-        placeholder="Write a comment..."
+        placeholder="Add comment..."
         rows="3"
-        class="w-full px-4 py-3 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
+        class="w-full bg-transparent border-none outline-none resize-none text-sm text-zinc-700 dark:text-zinc-200 placeholder-zinc-400"
       ></textarea>
-      <div class="flex justify-end">
-        <button
-          type="submit"
-          class="px-4 py-2 bg-accent text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-        >
-          Post Comment
+      <div class="flex items-center justify-between mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
+        <div class="flex items-center gap-1">
+          <button type="button" data-format="bold" class="p-1.5 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded text-zinc-700 dark:text-zinc-300 font-bold text-sm" title="Bold">B</button>
+          <button type="button" data-format="italic" class="p-1.5 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded text-zinc-700 dark:text-zinc-300 italic text-sm" title="Italic">I</button>
+          <button type="button" data-format="underline" class="p-1.5 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded text-zinc-700 dark:text-zinc-300 underline text-sm" title="Underline">U</button>
+          <span class="w-px h-4 bg-zinc-300 dark:bg-zinc-600 mx-2"></span>
+          <button type="button" data-action="emoji" class="p-1.5 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded text-zinc-700 dark:text-zinc-300" title="Emoji">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </button>
+        </div>
+        <button type="submit" class="px-5 py-1.5 bg-accent text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium">
+          Submit
         </button>
       </div>
     </form>
+    <!-- Emoji Picker Popup -->
+    <div id="emoji-picker" class="hidden absolute mt-2 bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 p-3 z-20">
+      <div class="grid grid-cols-8 gap-1 text-xl">
+        <button type="button" class="emoji-btn p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded">😀</button>
+        <button type="button" class="emoji-btn p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded">😂</button>
+        <button type="button" class="emoji-btn p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded">😍</button>
+        <button type="button" class="emoji-btn p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded">🤔</button>
+        <button type="button" class="emoji-btn p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded">👍</button>
+        <button type="button" class="emoji-btn p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded">👎</button>
+        <button type="button" class="emoji-btn p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded">❤️</button>
+        <button type="button" class="emoji-btn p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded">🔥</button>
+        <button type="button" class="emoji-btn p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded">🎉</button>
+        <button type="button" class="emoji-btn p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded">💯</button>
+        <button type="button" class="emoji-btn p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded">🙏</button>
+        <button type="button" class="emoji-btn p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded">😢</button>
+        <button type="button" class="emoji-btn p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded">😮</button>
+        <button type="button" class="emoji-btn p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded">😎</button>
+        <button type="button" class="emoji-btn p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded">🤣</button>
+        <button type="button" class="emoji-btn p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded">👏</button>
+      </div>
+    </div>
   </div>
 
   <!-- Login prompt (shown when logged out) -->
@@ -49,11 +94,12 @@ const { slug } = Astro.props;
 </section>
 
 <script>
-  import { supabase, type Comment, type Profile } from '../../lib/supabase';
+  import { supabase, type Comment, type Profile, type CommentReaction } from '../../lib/supabase';
 
   interface CommentWithProfile extends Comment {
     profiles: Profile;
     replies?: CommentWithProfile[];
+    comment_reactions?: CommentReaction[];
   }
 
   async function initCommentSection() {
@@ -68,6 +114,14 @@ const { slug } = Astro.props;
     const commentsList = document.getElementById('comments-list');
     const commentForm = document.getElementById('comment-form');
     const commentInput = document.getElementById('comment-input') as HTMLTextAreaElement;
+    const commentCount = document.getElementById('comment-count');
+    const sortBtn = document.getElementById('sort-btn');
+    const sortDropdown = document.getElementById('sort-dropdown');
+    const sortLabel = document.getElementById('sort-label');
+    const emojiBtn = document.querySelector('[data-action="emoji"]');
+    const emojiPicker = document.getElementById('emoji-picker');
+
+    let currentSort = 'recent';
 
     // Check auth state
     const { data: { session } } = await supabase.auth.getSession();
@@ -80,20 +134,100 @@ const { slug } = Astro.props;
       loginPrompt?.classList.remove('hidden');
     }
 
+    // Sort dropdown handlers
+    sortBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sortDropdown?.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', () => {
+      sortDropdown?.classList.add('hidden');
+      emojiPicker?.classList.add('hidden');
+    });
+
+    sortDropdown?.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const sort = (e.target as HTMLElement).getAttribute('data-sort');
+        if (sort) {
+          currentSort = sort;
+          if (sortLabel) {
+            sortLabel.textContent = sort === 'recent' ? 'Most recent' : sort === 'oldest' ? 'Oldest' : 'Most liked';
+          }
+          sortDropdown?.classList.add('hidden');
+          await loadComments();
+        }
+      });
+    });
+
+    // Format button handlers
+    document.querySelectorAll('[data-format]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const format = btn.getAttribute('data-format');
+        if (!commentInput || !format) return;
+
+        const start = commentInput.selectionStart;
+        const end = commentInput.selectionEnd;
+        const text = commentInput.value;
+        const selected = text.substring(start, end);
+
+        let before = '', after = '';
+        if (format === 'bold') { before = '**'; after = '**'; }
+        else if (format === 'italic') { before = '*'; after = '*'; }
+        else if (format === 'underline') { before = '<u>'; after = '</u>'; }
+
+        commentInput.value = text.substring(0, start) + before + selected + after + text.substring(end);
+        commentInput.focus();
+        commentInput.setSelectionRange(start + before.length, end + before.length);
+      });
+    });
+
+    // Emoji picker handlers
+    emojiBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      emojiPicker?.classList.toggle('hidden');
+    });
+
+    emojiPicker?.querySelectorAll('.emoji-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const emoji = (e.target as HTMLElement).textContent;
+        if (commentInput && emoji) {
+          const start = commentInput.selectionStart;
+          const text = commentInput.value;
+          commentInput.value = text.substring(0, start) + emoji + text.substring(start);
+          commentInput.focus();
+          commentInput.setSelectionRange(start + emoji.length, start + emoji.length);
+        }
+        emojiPicker?.classList.add('hidden');
+      });
+    });
+
     // Load comments
     await loadComments();
 
     async function loadComments() {
       if (!commentsList) return;
 
-      const { data: comments, error } = await supabase
+      let query = supabase
         .from('comments')
         .select(`
           *,
-          profiles (id, username, avatar_url)
+          profiles (id, username, avatar_url),
+          comment_reactions (id, user_id, reaction_type)
         `)
-        .eq('post_slug', slug)
-        .order('created_at', { ascending: true });
+        .eq('post_slug', slug);
+
+      // Apply sorting
+      if (currentSort === 'recent') {
+        query = query.order('created_at', { ascending: false });
+      } else if (currentSort === 'oldest') {
+        query = query.order('created_at', { ascending: true });
+      } else {
+        query = query.order('created_at', { ascending: false });
+      }
+
+      const { data: comments, error } = await query;
 
       if (error) {
         console.error('Error loading comments:', error);
@@ -101,18 +235,34 @@ const { slug } = Astro.props;
         return;
       }
 
+      // Update comment count
+      if (commentCount) {
+        commentCount.textContent = String(comments?.length || 0);
+      }
+
       if (!comments || comments.length === 0) {
         commentsList.innerHTML = '<p class="text-zinc-500 text-sm">No comments yet. Be the first to comment!</p>';
         return;
       }
 
+      // Sort by popularity if needed (client-side for now)
+      let sortedComments = comments as CommentWithProfile[];
+      if (currentSort === 'popular') {
+        sortedComments = sortedComments.sort((a, b) => {
+          const aLikes = (a.comment_reactions || []).filter(r => r.reaction_type === 'like').length;
+          const bLikes = (b.comment_reactions || []).filter(r => r.reaction_type === 'like').length;
+          return bLikes - aLikes;
+        });
+      }
+
       // Build threaded comments
-      const threaded = buildThreadedComments(comments as CommentWithProfile[]);
+      const threaded = buildThreadedComments(sortedComments);
       commentsList.innerHTML = renderComments(threaded, session?.user?.id);
 
-      // Attach reply handlers
+      // Attach handlers
       attachReplyHandlers(session?.user?.id);
       attachDeleteHandlers(session?.user?.id);
+      attachReactionHandlers(session?.user?.id);
     }
 
     function buildThreadedComments(comments: CommentWithProfile[]): CommentWithProfile[] {
@@ -141,19 +291,37 @@ const { slug } = Astro.props;
         const timeAgo = getTimeAgo(new Date(comment.created_at));
         const hasReplies = comment.replies && comment.replies.length > 0;
 
+        // Calculate reactions
+        const reactions = comment.comment_reactions || [];
+        const likes = reactions.filter(r => r.reaction_type === 'like').length;
+        const dislikes = reactions.filter(r => r.reaction_type === 'dislike').length;
+        const userReaction = currentUserId ? reactions.find(r => r.user_id === currentUserId)?.reaction_type : null;
+
         return `
           <div class="${isReply ? 'ml-12' : ''}" style="margin-top: 1.25rem;" data-comment-id="${comment.id}">
             <div class="flex gap-3">
-              <div class="flex-shrink-0">
+              <div class="flex-shrink-0 flex flex-col items-center">
                 <img src="${comment.profiles?.avatar_url || '/default-avatar.png'}" alt="${comment.profiles?.username || 'User'}" class="w-8 h-8 rounded-full object-cover" />
+                ${hasReplies ? '<div class="w-0.5 flex-1 mt-2 bg-zinc-300 dark:bg-zinc-600"></div>' : ''}
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 mb-1">
                   <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">${comment.profiles?.username || 'Anonymous'}</span>
                   <span class="text-xs text-zinc-500 dark:text-zinc-400">${timeAgo}</span>
                 </div>
-                <p class="text-sm text-zinc-700 dark:text-zinc-200 mb-3 leading-relaxed">${escapeHtml(comment.content)}</p>
-                <div class="flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">${currentUserId ? `<button class="reply-btn hover:text-zinc-700 dark:hover:text-zinc-300" data-parent-id="${comment.id}">Reply</button>` : ''}${isOwner ? `<button class="delete-btn hover:text-red-500" data-comment-id="${comment.id}">Delete</button>` : ''}</div>
+                <div class="text-sm text-zinc-700 dark:text-zinc-200 mb-3 leading-relaxed">${renderMarkdown(comment.content)}</div>
+                <div class="flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
+                  <button class="like-btn flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-300 ${userReaction === 'like' ? 'text-accent' : ''}" data-comment-id="${comment.id}" data-reaction="like" data-user-reaction="${userReaction || ''}">
+                    <svg class="w-4 h-4" fill="${userReaction === 'like' ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
+                    <span>${likes || ''}</span>
+                  </button>
+                  <button class="dislike-btn flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-300 ${userReaction === 'dislike' ? 'text-accent' : ''}" data-comment-id="${comment.id}" data-reaction="dislike" data-user-reaction="${userReaction || ''}">
+                    <svg class="w-4 h-4" fill="${userReaction === 'dislike' ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"></path></svg>
+                    <span>${dislikes || ''}</span>
+                  </button>
+                  ${currentUserId ? `<button class="reply-btn hover:text-zinc-700 dark:hover:text-zinc-300" data-parent-id="${comment.id}">Reply</button>` : ''}
+                  ${isOwner ? `<button class="delete-btn hover:text-red-500" data-comment-id="${comment.id}">Delete</button>` : ''}
+                </div>
                 <div class="reply-form-container hidden mt-3"></div>
               </div>
             </div>
@@ -161,6 +329,17 @@ const { slug } = Astro.props;
           </div>
         `;
       }).join('');
+    }
+
+    function renderMarkdown(text: string): string {
+      let html = escapeHtml(text);
+      // Bold: **text**
+      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      // Italic: *text*
+      html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+      // Underline: <u>text</u> (already escaped, so match the escaped version)
+      html = html.replace(/&lt;u&gt;(.+?)&lt;\/u&gt;/g, '<u>$1</u>');
+      return html;
     }
 
     function escapeHtml(text: string): string {
@@ -177,6 +356,53 @@ const { slug } = Astro.props;
       if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
       if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
       return date.toLocaleDateString();
+    }
+
+    function attachReactionHandlers(currentUserId?: string) {
+      document.querySelectorAll('.like-btn, .dislike-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          if (!currentUserId) {
+            alert('Please sign in to react');
+            return;
+          }
+
+          const target = e.currentTarget as HTMLElement;
+          const commentId = target.getAttribute('data-comment-id');
+          const reactionType = target.getAttribute('data-reaction') as 'like' | 'dislike';
+          const currentReaction = target.getAttribute('data-user-reaction');
+
+          if (!commentId) return;
+
+          // Use data attribute to determine action (no extra query needed)
+          if (currentReaction === reactionType) {
+            // Remove reaction (user clicked same button)
+            await supabase
+              .from('comment_reactions')
+              .delete()
+              .eq('comment_id', commentId)
+              .eq('user_id', currentUserId);
+          } else if (currentReaction) {
+            // Update reaction (user switching from like to dislike or vice versa)
+            await supabase
+              .from('comment_reactions')
+              .update({ reaction_type: reactionType })
+              .eq('comment_id', commentId)
+              .eq('user_id', currentUserId);
+          } else {
+            // Create new reaction
+            await supabase
+              .from('comment_reactions')
+              .insert({
+                comment_id: commentId,
+                user_id: currentUserId,
+                reaction_type: reactionType,
+              });
+          }
+
+          await loadComments();
+        });
+      });
     }
 
     function attachReplyHandlers(currentUserId?: string) {
