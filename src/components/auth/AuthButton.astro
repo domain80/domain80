@@ -1,0 +1,124 @@
+---
+import { Icon } from 'astro-icon/components';
+---
+
+<div class="auth-container">
+  <!-- Loading state -->
+  <div id="auth-loading" class="text-sm text-zinc-500">Loading...</div>
+
+  <!-- Logged out state -->
+  <div id="auth-logged-out" class="hidden">
+    <div class="flex items-center gap-2">
+      <button
+        id="login-github"
+        class="flex items-center gap-2 px-3 py-1.5 text-sm bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-md hover:opacity-90 transition-opacity"
+      >
+        <Icon name="tabler:brand-github" class="w-4 h-4" />
+        <span>GitHub</span>
+      </button>
+      <button
+        id="login-google"
+        class="flex items-center gap-2 px-3 py-1.5 text-sm bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-300 dark:border-zinc-600 rounded-md hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
+      >
+        <Icon name="tabler:brand-google" class="w-4 h-4" />
+        <span>Google</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Logged in state -->
+  <div id="auth-logged-in" class="hidden">
+    <div class="flex items-center gap-3">
+      <img
+        id="user-avatar"
+        src=""
+        alt="User avatar"
+        class="w-8 h-8 rounded-full object-cover"
+      />
+      <span id="user-name" class="text-sm text-zinc-700 dark:text-zinc-300"></span>
+      <button
+        id="logout-btn"
+        class="text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+      >
+        Sign out
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+
+  async function initAuth() {
+    const loadingEl = document.getElementById('auth-loading');
+    const loggedOutEl = document.getElementById('auth-logged-out');
+    const loggedInEl = document.getElementById('auth-logged-in');
+    const avatarEl = document.getElementById('user-avatar') as HTMLImageElement;
+    const nameEl = document.getElementById('user-name');
+    const loginGithubBtn = document.getElementById('login-github');
+    const loginGoogleBtn = document.getElementById('login-google');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    if (!loadingEl || !loggedOutEl || !loggedInEl) return;
+
+    // Check current session
+    const { data: { session } } = await supabase.auth.getSession();
+
+    loadingEl.classList.add('hidden');
+
+    if (session?.user) {
+      // User is logged in
+      loggedInEl.classList.remove('hidden');
+
+      // Get profile data
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username, avatar_url')
+        .eq('id', session.user.id)
+        .single();
+
+      if (avatarEl && profile?.avatar_url) {
+        avatarEl.src = profile.avatar_url;
+      }
+      if (nameEl) {
+        nameEl.textContent = profile?.username || session.user.email || 'User';
+      }
+    } else {
+      // User is logged out
+      loggedOutEl.classList.remove('hidden');
+    }
+
+    // Login handlers
+    loginGithubBtn?.addEventListener('click', async () => {
+      localStorage.setItem('auth_redirect', window.location.href);
+      await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+    });
+
+    loginGoogleBtn?.addEventListener('click', async () => {
+      localStorage.setItem('auth_redirect', window.location.href);
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+    });
+
+    // Logout handler
+    logoutBtn?.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.reload();
+    });
+  }
+
+  // Initial load
+  initAuth();
+
+  // Handle Astro view transitions
+  document.addEventListener('astro:after-swap', initAuth);
+</script>

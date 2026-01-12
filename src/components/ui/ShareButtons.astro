@@ -4,59 +4,172 @@ import { Icon } from "astro-icon/components";
 interface Props {
   title: string;
   url: string;
+  slug: string;
 }
 
-const { title, url } = Astro.props;
-const encodedUrl = encodeURIComponent(url);
-const encodedTitle = encodeURIComponent(title);
+const { title, url, slug } = Astro.props;
 ---
 
-<div class="flex items-center justify-between gap-4">
-  <!-- Like counter placeholder (will be enhanced later) -->
-  <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-    <Icon name="tabler:heart" class="w-5 h-5" />
-    <span class="text-sm">232</span>
-  </div>
-
-  <!-- View counter placeholder -->
-  <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-    <Icon name="tabler:eye" class="w-5 h-5" />
-    <span class="text-sm">189</span>
-  </div>
+<div class="share-buttons flex items-center justify-between gap-4" data-slug={slug}>
+  <!-- Like button -->
+  <button
+    id="like-button"
+    class="like-btn flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+    disabled
+  >
+    <Icon name="tabler:heart" class="like-icon w-5 h-5" />
+    <Icon name="tabler:heart-filled" class="like-icon-filled w-5 h-5 hidden text-red-500" />
+    <span class="like-count text-sm">--</span>
+  </button>
 
   <!-- Share button -->
   <button
     id="share-button"
-    class="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+    class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
     data-title={title}
     data-url={url}
   >
     <Icon name="tabler:share" class="w-5 h-5" />
-    <span class="text-sm">Share</span>
+    <span class="text-sm share-text">Share</span>
   </button>
 </div>
 
 <script>
-  const shareButton = document.getElementById("share-button");
+  import { supabase } from '../../lib/supabase';
 
-  shareButton?.addEventListener("click", async () => {
-    const title = shareButton.getAttribute("data-title") || "";
-    const url = shareButton.getAttribute("data-url") || window.location.href;
+  async function initShareButtons() {
+    const container = document.querySelector('.share-buttons');
+    const likeBtn = document.getElementById('like-button') as HTMLButtonElement;
+    const likeCount = document.querySelector('.like-count');
+    const likeIcon = document.querySelector('.like-icon');
+    const likeIconFilled = document.querySelector('.like-icon-filled');
+    const shareButton = document.getElementById('share-button');
+    const shareText = document.querySelector('.share-text');
 
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, url });
-      } catch (err) {
-        console.error("Share failed:", err);
+    if (!container || !likeBtn) return;
+
+    const slug = container.getAttribute('data-slug');
+    if (!slug) return;
+
+    // Get session
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session?.user?.id;
+
+    // Enable like button if logged in
+    if (userId) {
+      likeBtn.disabled = false;
+    }
+
+    // Fetch like count and user's like status
+    async function fetchLikeStatus() {
+      // Get total count
+      const { count } = await supabase
+        .from('post_likes')
+        .select('*', { count: 'exact', head: true })
+        .eq('post_slug', slug);
+
+      if (likeCount) {
+        likeCount.textContent = String(count || 0);
       }
-    } else {
-      // Fallback: Copy to clipboard
-      try {
-        await navigator.clipboard.writeText(url);
-        alert("Link copied to clipboard!");
-      } catch (err) {
-        console.error("Copy failed:", err);
+
+      // Check if user liked
+      if (userId) {
+        const { data } = await supabase
+          .from('post_likes')
+          .select('id')
+          .eq('post_slug', slug)
+          .eq('user_id', userId)
+          .single();
+
+        updateLikeUI(!!data);
       }
     }
-  });
+
+    function updateLikeUI(hasLiked: boolean) {
+      if (hasLiked) {
+        likeIcon?.classList.add('hidden');
+        likeIconFilled?.classList.remove('hidden');
+        likeBtn.classList.add('liked');
+      } else {
+        likeIcon?.classList.remove('hidden');
+        likeIconFilled?.classList.add('hidden');
+        likeBtn.classList.remove('liked');
+      }
+    }
+
+    async function toggleLike() {
+      if (!userId) {
+        alert('Please sign in to like this post');
+        return;
+      }
+
+      const isLiked = likeBtn.classList.contains('liked');
+
+      if (isLiked) {
+        // Unlike
+        await supabase
+          .from('post_likes')
+          .delete()
+          .eq('post_slug', slug)
+          .eq('user_id', userId);
+      } else {
+        // Like
+        await supabase
+          .from('post_likes')
+          .insert({ post_slug: slug, user_id: userId });
+      }
+
+      await fetchLikeStatus();
+    }
+
+    likeBtn.addEventListener('click', toggleLike);
+
+    // Share button
+    shareButton?.addEventListener('click', async () => {
+      const title = shareButton.getAttribute('data-title') || '';
+      const url = shareButton.getAttribute('data-url') || window.location.href;
+
+      if (navigator.share) {
+        try {
+          await navigator.share({ title, url });
+        } catch (err) {
+          if ((err as Error).name !== 'AbortError') {
+            console.error('Share failed:', err);
+          }
+        }
+      } else {
+        try {
+          await navigator.clipboard.writeText(url);
+          if (shareText) {
+            const original = shareText.textContent;
+            shareText.textContent = 'Copied!';
+            setTimeout(() => {
+              shareText.textContent = original;
+            }, 2000);
+          }
+        } catch (err) {
+          console.error('Copy failed:', err);
+        }
+      }
+    });
+
+    // Initial fetch
+    await fetchLikeStatus();
+  }
+
+  // Initial load
+  initShareButtons();
+
+  // Handle Astro view transitions
+  document.addEventListener('astro:after-swap', initShareButtons);
 </script>
+
+<style>
+  .like-btn.liked {
+    color: #ef4444;
+  }
+
+  .like-btn:not(:disabled):active {
+    transform: scale(0.95);
+  }
+</style>

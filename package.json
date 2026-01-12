@@ -12,6 +12,7 @@
     "@astrojs/rss": "^4.0.14",
     "@fontsource/bricolage-grotesque": "^5.2.10",
     "@fontsource/hubot-sans": "^5.2.8",
+    "@supabase/supabase-js": "^2.90.1",
     "astro": "^5.16.6",
     "astro-icon": "^1.1.5",
     "decap-cms-app": "^3.9.0"
