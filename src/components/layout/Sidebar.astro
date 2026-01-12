@@ -60,6 +60,14 @@ import { Icon } from "astro-icon/components";
       <Icon name="tabler:stack-2" class="w-5 h-5" />
       Projects
     </a>
+    <a
+      href="#experience"
+      data-nav-link="experience"
+      class="nav-link flex items-center gap-2 text-zinc-700 dark:text-zinc-300 hover:text-accent dark:hover:text-accent transition-colors"
+    >
+      <Icon name="tabler:briefcase" class="w-5 h-5" />
+      Experience
+    </a>
   </nav>
 
   <script>
@@ -98,7 +106,7 @@ import { Icon } from "astro-icon/components";
 
       // Observe all sections
       const sections = document.querySelectorAll(
-        "#whats-on-my-mind, #projects"
+        "#whats-on-my-mind, #projects, #experience"
       );
       sections.forEach((section) => observer.observe(section));
 

@@ -46,7 +46,15 @@
 
   html {
     font-size: 16px;
-    @apply min-h-screen text-zinc-800 dark:text-zinc-300 bg-zinc-200 dark:bg-zinc-900;
+    @apply min-h-screen text-zinc-800 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-900;
+  }
+
+  /* Smooth theme transition */
+  html.theme-transition,
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition: background-color 300ms ease, border-color 300ms ease, color 150ms ease !important;
   }
 
   body {

@@ -11,25 +11,34 @@ interface Props {
   link?: string;
   linkText?: string;
   slug: string;
+  image?: string;
 }
 
-const { title, description, year, endYear, tags, link, linkText, slug } =
+const { title, description, year, endYear, tags, link, linkText, slug, image } =
   Astro.props;
 const yearRange = endYear ? `${year} - ${endYear}` : year;
 ---
 
 <article class="group space-y-4">
-  <!-- Image placeholder -->
-  <div
-    class="aspect-video max-h-80 bg-zinc-300 dark:bg-zinc-800 rounded-lg overflow-hidden"
-  >
-    <div class="w-full h-full flex items-center justify-center">
-      <Icon
-        name="tabler:photo"
-        class="w-12 h-12 text-zinc-400 dark:text-zinc-600"
+  <!-- Image or placeholder -->
+  {image ? (
+    <div class="aspect-video max-h-80 bg-zinc-300 dark:bg-zinc-800 rounded-lg overflow-hidden">
+      <img
+        src={image}
+        alt={title}
+        class="w-full h-full object-cover"
       />
     </div>
-  </div>
+  ) : (
+    <div class="aspect-video max-h-80 bg-zinc-300 dark:bg-zinc-800 rounded-lg overflow-hidden">
+      <div class="w-full h-full flex items-center justify-center">
+        <Icon
+          name="tabler:photo"
+          class="w-12 h-12 text-zinc-400 dark:text-zinc-600"
+        />
+      </div>
+    </div>
+  )}
 
   <!-- Content -->
   <div class="space-y-3">

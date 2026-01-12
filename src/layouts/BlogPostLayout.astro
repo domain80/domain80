@@ -1,8 +1,8 @@
 ---
 import { Icon } from 'astro-icon/components';
-import CommentSection from '../components/comments/CommentSection.astro';
 import PostMetadata from '../components/blog/PostMetadata.astro';
 import TableOfContents from '../components/blog/TableOfContents.astro';
+import CommentSection from '../components/comments/CommentSection.astro';
 import Footer from '../components/layout/Footer.astro';
 import ShareButtons from '../components/ui/ShareButtons.astro';
 import ThemeToggle from '../components/ui/ThemeToggle.astro';
@@ -26,7 +26,7 @@ const { title, description, author, authorAvatar, pubDate, updatedDate, category
 <BaseLayout title={title} description={description}>
   <div class="min-h-screen flex flex-col">
     <!-- Brand/Domain at top -->
-    <header class="py-6  border-b border-zinc-200 dark:border-zinc-800">
+    <header class="sticky top-0 z-50 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100/90 dark:bg-zinc-900/90 backdrop-blur-sm">
       <div class="max-w-5xl mx-auto flex items-center justify-between">
         <a
           href="/"
@@ -34,7 +34,20 @@ const { title, description, author, authorAvatar, pubDate, updatedDate, category
         >
           Domain80
         </a>
+
+        <div class="flex gap-27 items-center">
+
+ <!-- Back Button -->
+       <p>
+        <a
+          href="/blog"
+          class="inline-flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent dark:hover:text-accent transition-colors mb-0"
+        >
+          <Icon name="tabler:arrow-narrow-left" class="w-4 h-4" />
+          Back to all posts
+        </a></p>
         <ThemeToggle />
+        </div>
       </div>
     </header>
 
@@ -42,15 +55,7 @@ const { title, description, author, authorAvatar, pubDate, updatedDate, category
     <div class="grid grid-cols-1 lg:grid-cols-[1.6fr_260px] gap-32">
       <!-- Main Content -->
       <article class="max-w-2xl">
-        <!-- Back Button -->
-       <p>
-        <a
-          href="/blog"
-          class="inline-flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent dark:hover:text-accent transition-colors mb-6"
-        >
-          <Icon name="tabler:arrow-narrow-left" class="w-4 h-4" />
-          Back to all posts
-        </a></p> 
+        
 
         <!-- Category Badge -->
         <span class="inline-block px-3 py-1 text-xs font-medium bg-accent/10 text-accent rounded-full mb-4">
@@ -81,13 +86,16 @@ const { title, description, author, authorAvatar, pubDate, updatedDate, category
 
       <!-- Sidebar (TOC + Engagement) -->
       {headings.length > 0 && (
-        <aside class="hidden mt-20 lg:block sticky top-14 h-fit space-y-8">
+        <aside class="hidden mt-20 lg:block sticky top-24 h-fit space-y-8">
+
           <TableOfContents headings={headings} />
 
           <!-- Engagement -->
           <div class="pt-6 border-t border-zinc-200 dark:border-zinc-800">
             <ShareButtons title={title} url={Astro.url.href} slug={slug} />
           </div>
+
+
         </aside>
       )}
     </div>

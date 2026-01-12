@@ -1,55 +1,100 @@
 ---
-// Theme toggle switch component with proper boolean checkbox
+// Theme toggle with Sun/Moon icons
 ---
 
-<div class="flex items-center gap-3">
-  <label class="relative inline-flex items-center cursor-pointer">
-    <input
-      type="checkbox"
-      id="theme-toggle"
-      class="sr-only peer"
-      aria-label="Toggle dark mode"
-    />
-    <div
-      class="w-11 h-6 bg-zinc-300 dark:bg-zinc-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-accent peer-focus:ring-offset-2 after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent peer-checked:after:translate-x-full peer-checked:after:border-white"
+<button
+  id="theme-toggle"
+  role="switch"
+  aria-checked="false"
+  aria-label="Toggle dark mode"
+  class="relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors bg-zinc-300 dark:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-100 dark:focus-visible:ring-offset-zinc-900"
+>
+  <!-- Sliding thumb with icon -->
+  <span
+    id="theme-thumb"
+    class="pointer-events-none flex h-5 w-5 items-center justify-center rounded-full bg-white dark:bg-zinc-800 shadow-lg ring-0 transition-transform duration-200"
+  >
+    <!-- Sun icon (shown in light mode) - darker orange -->
+    <svg
+      id="sun-icon"
+      class="h-3 w-3 text-orange-600"
+      fill="currentColor"
+      viewBox="0 0 24 24"
     >
-    </div>
-  </label>
-  <span id="theme-label" class="text-sm text-zinc-600 dark:text-zinc-400">
-    Light Mode
+      <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z" />
+    </svg>
+    <!-- Moon icon (shown in dark mode) - orange -->
+    <svg
+      id="moon-icon"
+      class="h-3 w-3 text-orange-400 hidden"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clip-rule="evenodd" />
+    </svg>
   </span>
-</div>
+  <span class="sr-only">Toggle theme</span>
+</button>
 
 <script is:inline>
   (function () {
     function initThemeToggle() {
-      const toggle = document.getElementById("theme-toggle");
-      const label = document.getElementById("theme-label");
+      const button = document.getElementById("theme-toggle");
+      const thumb = document.getElementById("theme-thumb");
+      const sunIcon = document.getElementById("sun-icon");
+      const moonIcon = document.getElementById("moon-icon");
 
-      if (!toggle || !label) {
-        console.error("Theme toggle elements not found");
-        return;
-      }
+      if (!button || !thumb || !sunIcon || !moonIcon) return;
+
+      // Remove any existing listener to prevent duplicates
+      const newButton = button.cloneNode(true);
+      button.parentNode.replaceChild(newButton, button);
+
+      const btn = document.getElementById("theme-toggle");
+      const thb = document.getElementById("theme-thumb");
+      const sun = document.getElementById("sun-icon");
+      const moon = document.getElementById("moon-icon");
 
       function updateUI() {
         const isDark = document.documentElement.classList.contains("dark");
-        toggle.checked = isDark;
-        label.textContent = isDark ? "Dark Mode" : "Light Mode";
+        btn.setAttribute("aria-checked", isDark.toString());
+
+        // Control thumb position via JS to avoid layout shift
+        if (isDark) {
+          thb.style.transform = "translateX(1.25rem)";
+          sun.classList.add("hidden");
+          moon.classList.remove("hidden");
+        } else {
+          thb.style.transform = "translateX(0.125rem)";
+          sun.classList.remove("hidden");
+          moon.classList.add("hidden");
+        }
       }
 
-      toggle.addEventListener("change", function () {
-        if (toggle.checked) {
+      function toggleTheme() {
+        const isDark = document.documentElement.classList.contains("dark");
+        const newTheme = isDark ? "light" : "dark";
+
+        // Enable transition class for smooth theme change
+        document.documentElement.classList.add("theme-transition");
+
+        if (newTheme === "dark") {
           document.documentElement.classList.add("dark");
-          localStorage.setItem("theme", "dark");
         } else {
           document.documentElement.classList.remove("dark");
-          localStorage.setItem("theme", "light");
         }
-
+        localStorage.setItem("theme", newTheme);
         updateUI();
-      });
 
-      // Initialize on page load
+        // Remove transition class after animation completes
+        setTimeout(() => {
+          document.documentElement.classList.remove("theme-transition");
+        }, 300);
+      }
+
+      btn.addEventListener("click", toggleTheme);
+
+      // Initialize UI on load
       updateUI();
     }
 
@@ -60,7 +105,7 @@
       initThemeToggle();
     }
 
-    // Re-initialize after page transitions
+    // Re-initialize after Astro page transitions
     document.addEventListener("astro:after-swap", initThemeToggle);
   })();
 </script>

@@ -1,6 +1,7 @@
 ---
 title: "Merson HR"
 description: "At Merson Venture Studios, we developed a centralized HR and payroll platform that streamlines employee records and payroll, replacing manual spreadsheets."
+image: "/images/projects/merson.png"
 year: "2024"
 status: "Completed"
 tags: ["React", "Typescript", "Node.js", "GraphQL", "MongoDB"]

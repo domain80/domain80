@@ -1,6 +1,7 @@
 ---
 title: "Terydin HR"
 description: "Paired with a small yet powerful team of fantastic individuals, we have created what is now Terydin HRMS - a platform for connecting employers with a very particular niche to talent across Africa."
+image: "/images/projects/terydin.png"
 year: "2024"
 endYear: "Present"
 status: "Ongoing"
