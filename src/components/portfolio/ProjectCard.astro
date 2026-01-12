@@ -1,6 +1,6 @@
 ---
-import Badge from '../ui/Badge.astro';
-import { Icon } from 'astro-icon/components';
+import { Icon } from "astro-icon/components";
+import Badge from "../ui/Badge.astro";
 
 interface Props {
   title: string;
@@ -13,47 +13,53 @@ interface Props {
   slug: string;
 }
 
-const { title, description, year, endYear, tags, link, linkText, slug } = Astro.props;
+const { title, description, year, endYear, tags, link, linkText, slug } =
+  Astro.props;
 const yearRange = endYear ? `${year} - ${endYear}` : year;
 ---
 
 <article class="group space-y-4">
   <!-- Image placeholder -->
-  <div class="aspect-video max-h-80 bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden">
+  <div
+    class="aspect-video max-h-80 bg-zinc-300 dark:bg-zinc-800 rounded-lg overflow-hidden"
+  >
     <div class="w-full h-full flex items-center justify-center">
-      <Icon name="tabler:photo" class="w-12 h-12 text-gray-400 dark:text-gray-600" />
+      <Icon
+        name="tabler:photo"
+        class="w-12 h-12 text-zinc-400 dark:text-zinc-600"
+      />
     </div>
   </div>
 
   <!-- Content -->
   <div class="space-y-3">
     <div>
-      <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+      <h3 class="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-1">
         {title} - {yearRange}
       </h3>
 
       <!-- Tech tags -->
       <div class="flex flex-wrap gap-2 mb-2">
-        {tags.map(tag => (
-          <Badge variant="tech">{tag}</Badge>
-        ))}
+        {tags.map((tag) => <Badge variant="tech">{tag}</Badge>)}
       </div>
     </div>
 
-    <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+    <p class="text-zinc-700 dark:text-zinc-300 leading-relaxed">
       {description}
     </p>
 
-    {link && (
-      <a
-        href={link}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center gap-1 text-sm text-accent hover:text-accent-dark transition-colors"
-      >
-        <span>{linkText || 'View project →'}</span>
-        <Icon name="tabler:external-link" class="w-4 h-4" />
-      </a>
-    )}
+    {
+      link && (
+        <a
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1 text-sm text-accent hover:text-accent-dark transition-colors"
+        >
+          <span>{linkText || "View project →"}</span>
+          <Icon name="tabler:external-link" class="w-4 h-4" />
+        </a>
+      )
+    }
   </div>
 </article>

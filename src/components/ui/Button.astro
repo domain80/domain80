@@ -1,31 +1,37 @@
 ---
 interface Props {
   href?: string;
-  variant?: 'primary' | 'outline' | 'ghost';
+  variant?: "primary" | "outline" | "ghost";
   class?: string;
   icon?: string;
 }
 
-const { href, variant = 'primary', class: className = '', icon } = Astro.props;
+const { href, variant = "primary", class: className = "", icon } = Astro.props;
 
-const baseClasses = 'inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-sm';
+const baseClasses =
+  "inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-sm";
 const variants = {
-  primary: 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-100',
-  outline: 'border-2 border-gray-900 dark:border-white text-gray-900 dark:text-white hover:bg-gray-900 hover:text-white dark:hover:bg-white dark:hover:text-gray-900',
-  ghost: 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+  primary:
+    "bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-100",
+  outline:
+    "border-1 border-zinc-400 dark:border-zinc-400 text-zinc-900 dark:text-zinc-200 hover:bg-zinc-800 transition-colors duration-200 hover:text-white dark:hover:bg-white dark:hover:text-zinc-900",
+  ghost:
+    "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800",
 };
 
 const classes = `${baseClasses} ${variants[variant]} ${className}`;
 ---
 
-{href ? (
-  <a href={href} class={classes}>
-    {icon && <span set:html={icon} />}
-    <slot />
-  </a>
-) : (
-  <button class={classes}>
-    {icon && <span set:html={icon} />}
-    <slot />
-  </button>
-)}
+{
+  href ? (
+    <a href={href} class={classes}>
+      {icon && <span set:html={icon} />}
+      <slot />
+    </a>
+  ) : (
+    <button class={classes}>
+      {icon && <span set:html={icon} />}
+      <slot />
+    </button>
+  )
+}

@@ -15,7 +15,7 @@ const { allTags, totalPosts } = Astro.props;
   <!-- Back to Home -->
   <a
     href="/"
-    class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-accent dark:hover:text-accent transition-colors mt-6"
+    class="inline-flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent dark:hover:text-accent transition-colors mt-6"
   >
     <Icon name="tabler:arrow-left" class="w-4 h-4" />
     Home
@@ -24,7 +24,7 @@ const { allTags, totalPosts } = Astro.props;
   <!-- Theme Toggle -->
   <ThemeToggle />
   <!-- Page Title -->
-  <h1 class="text-5xl font-bold text-gray-900 dark:text-gray-100">All Posts</h1>
+  <h1 class="text-5xl font-bold text-zinc-900 dark:text-zinc-100">All Posts</h1>
 
   <!-- CTA Buttons -->
   <div class="flex flex-wrap gap-3">
@@ -42,7 +42,7 @@ const { allTags, totalPosts } = Astro.props;
   </div>
 
   <!-- Tag Filters -->
-  <div class="pt-6 border-t border-gray-200 dark:border-gray-800">
+  <div class="pt-6 border-t border-zinc-200 dark:border-zinc-800">
     <div id="tag-list" class="flex flex-wrap gap-2">
       {
         allTags.map(({ tag, count }) => (
@@ -50,7 +50,7 @@ const { allTags, totalPosts } = Astro.props;
             type="button"
             data-tag={tag}
             data-active="false"
-            class="px-3 py-1.5 text-xs rounded-full border-2 border-gray-300 dark:border-gray-800 bg-transparent text-gray-900 dark:text-gray-400 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-all cursor-pointer data-[active=true]:border-accent data-[active=true]:text-accent data-[active=true]:font-bold"
+            class="px-3 py-1.5 text-xs rounded-full ring-1 ring-zinc-400 dark:border-zinc-800 bg-transparent text-zinc-900 dark:text-zinc-400 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 transition-all duration-300 cursor-pointer data-[active=true]:ring-accent data-[active=true]:text-accent data-[active=true]:font-mediu "
           >
             {tag}
           </button>
@@ -65,7 +65,7 @@ const { allTags, totalPosts } = Astro.props;
       type="text"
       id="blog-search"
       placeholder="Search..."
-      class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 transition-colors"
+      class="w-full px-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-500 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 transition-colors"
     />
   </div>
 
@@ -74,7 +74,7 @@ const { allTags, totalPosts } = Astro.props;
     <button
       id="prev-page"
       type="button"
-      class="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      class="px-3 py-1.5 text-sm text-zinc-700 dark:text-zinc-300 hover:text-accent dark:hover:text-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
     >
       Previous
     </button>
@@ -86,20 +86,20 @@ const { allTags, totalPosts } = Astro.props;
     <button
       id="next-page"
       type="button"
-      class="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      class="px-3 py-1.5 text-sm text-zinc-700 dark:text-zinc-300 hover:text-accent dark:hover:text-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
     >
       Next
     </button>
   </nav>
 
   <!-- Social Links and Resume -->
-  <div class="pt-6 border-t border-gray-200 dark:border-gray-800 space-y-4">
+  <div class="pt-6 border-t border-zinc-200 dark:border-zinc-800 space-y-4">
     <div class="flex items-center gap-4">
       <a
         href="https://github.com/domain80"
         target="_blank"
         rel="noopener noreferrer"
-        class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
+        class="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors"
         aria-label="GitHub"
       >
         <Icon name="tabler:brand-github" class="w-6 h-6" />
@@ -108,7 +108,7 @@ const { allTags, totalPosts } = Astro.props;
         href="https://linkedin.com/in/DavidMainoo"
         target="_blank"
         rel="noopener noreferrer"
-        class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
+        class="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors"
         aria-label="LinkedIn"
       >
         <Icon name="tabler:brand-linkedin" class="w-6 h-6" />
@@ -119,7 +119,7 @@ const { allTags, totalPosts } = Astro.props;
       href="https://docs.google.com/document/d/1MFkGhhAN17oxTCcDf2UoClBh9HRJLTgJfKRj_TrW908/edit?usp=sharing"
       target="_blank"
       rel="noopener noreferrer"
-      class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-accent dark:hover:text-accent transition-colors"
+      class="inline-flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent dark:hover:text-accent transition-colors"
     >
       My resume →
     </a>
@@ -127,7 +127,7 @@ const { allTags, totalPosts } = Astro.props;
 
   <!-- Copyright -->
   <p
-    class="text-xs text-gray-500 dark:text-gray-500 pt-6 border-t border-gray-200 dark:border-gray-800"
+    class="text-xs text-zinc-500 dark:text-zinc-500 pt-6 border-t border-zinc-200 dark:border-zinc-800"
   >
     © Copyright 2025, David Mainoo.
   </p>
