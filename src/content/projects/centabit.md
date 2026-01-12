@@ -1,18 +1,19 @@
 ---
 title: "Centabit"
-description: "A powerfully simple budget app designed for speed and usability, perfect for one-handed use when you are on the go."
+description: "A local-first budgeting app featuring offline-sync with conflict resolution, and reactive UIs."
 year: "2025"
 status: "Ongoing"
-tags: ["Flutter", "Golang", "SQLite"]
-link: "https://tally.so/r/eqQo4k"
-linkText: "Join the free waitlist today!"
+tags: ["Flutter", "Go", "SQLite", "REST APIs"]
+link: "https://domain80.github.io/centabit_v0.5/"
+linkText: "View Project"
+type: "personal"
 featured: true
-order: 1
+order: 2
 ---
 
 ## Join the free waitlist today!
 
-A powerfully simple budget app designed for speed and usability, perfect for one-handed use when you are on the go.
+A local-first budgeting app featuring offline-sync with conflict resolution, and reactive UIs. Designed for speed and usability, perfect for one-handed use when you are on the go.
 
 As a developer dedicated to delivering complete solutions, I chose Flutter and built this app five times to master its architecture and tools.
 

@@ -39,6 +39,7 @@ const projects = defineCollection({
     github: z.string().url().optional(),
     featured: z.boolean().default(false),
     order: z.number().optional(),
+    type: z.enum(['personal', 'work']).default('personal'),
   }),
 });
 

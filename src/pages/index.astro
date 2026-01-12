@@ -13,10 +13,17 @@ const latestPosts = allPosts
 
 // Get featured projects
 const allProjects = await getCollection("projects");
-const featuredProjects = allProjects
-  .filter((project) => project.data.featured)
+
+// Get personal projects
+const personalProjects = allProjects
+  .filter((p) => p.data.featured && p.data.type === 'personal')
   .sort((a, b) => (a.data.order || 999) - (b.data.order || 999))
   .slice(0, 3);
+
+// Get work experience projects
+const workProjects = allProjects
+  .filter((p) => p.data.featured && p.data.type === 'work')
+  .sort((a, b) => (a.data.order || 999) - (b.data.order || 999));
 ---
 
 <HomeLayout title="Home">
@@ -47,13 +54,36 @@ const featuredProjects = allProjects
   </section>
 
   <!-- Projects Section -->
-  <section id="projects" class="scroll-mt-48">
+  <section id="projects" class="scroll-mt-48 mb-16">
     <h2 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-6">
       Projects
     </h2>
     <div class="space-y-8">
       {
-        featuredProjects.map((project) => (
+        personalProjects.map((project) => (
+          <ProjectCard
+            title={project.data.title}
+            description={project.data.description}
+            year={project.data.year}
+            endYear={project.data.endYear}
+            tags={project.data.tags}
+            link={project.data.link}
+            linkText={project.data.linkText}
+            slug={project.id}
+          />
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Experience Section -->
+  <section id="experience" class="scroll-mt-48">
+    <h2 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-6">
+      Experience
+    </h2>
+    <div class="space-y-8">
+      {
+        workProjects.map((project) => (
           <ProjectCard
             title={project.data.title}
             description={project.data.description}

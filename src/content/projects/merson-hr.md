@@ -7,7 +7,8 @@ tags: ["React", "Typescript", "Node.js", "GraphQL", "MongoDB"]
 link: "https://mersonhr.com/"
 linkText: "Visit Merson HR →"
 featured: true
-order: 3
+order: 2
+type: "work"
 ---
 
 ## Streamlining HR Operations

@@ -8,7 +8,8 @@ tags: ["Flutter", "React", "Typescript", "Java", "SpringBoot", "PostgreSQL"]
 link: "https://terydin.co"
 linkText: "Visit Terydin →"
 featured: true
-order: 2
+order: 1
+type: "work"
 ---
 
 ## Connecting Talent Across Africa
