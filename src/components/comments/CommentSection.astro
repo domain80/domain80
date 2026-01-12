@@ -491,6 +491,7 @@ const { slug } = Astro.props;
 
       // Attach handlers
       attachReplyHandlers(session?.user?.id);
+      attachEditHandlers(session?.user?.id);
       attachDeleteHandlers(session?.user?.id);
       attachReactionHandlers(session?.user?.id);
     }
@@ -729,6 +730,99 @@ const { slug } = Astro.props;
           } else {
             container.classList.add("hidden");
             container.innerHTML = "";
+          }
+        });
+      });
+    }
+
+    function attachEditHandlers(currentUserId?: string) {
+      if (!currentUserId) return;
+
+      document.querySelectorAll(".edit-btn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const target = e.target as HTMLElement;
+          const commentId = target.getAttribute("data-comment-id");
+          const commentEl = target.closest("[data-comment-id]");
+          const commentText = commentEl?.querySelector(".comment-text");
+          const editContainer = commentEl?.querySelector(".edit-form-container");
+
+          if (!commentText || !editContainer) return;
+
+          // Get original content
+          const originalContent = commentText.getAttribute("data-original-content") || "";
+
+          // Toggle edit form
+          if (editContainer.classList.contains("hidden")) {
+            // Hide comment text, show edit form
+            commentText.classList.add("hidden");
+            editContainer.classList.remove("hidden");
+            editContainer.innerHTML = `
+              <form class="edit-form space-y-2">
+                <textarea
+                  name="content"
+                  rows="3"
+                  class="w-full px-3 py-2 text-sm rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
+                >${originalContent}</textarea>
+                <div class="flex justify-end gap-2">
+                  <button type="button" class="cancel-edit text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300">
+                    Cancel
+                  </button>
+                  <button type="submit" class="px-3 py-1 text-sm bg-accent text-white rounded-lg hover:opacity-90 transition-opacity">
+                    Save
+                  </button>
+                </div>
+              </form>
+            `;
+
+            // Focus textarea
+            const textarea = editContainer.querySelector("textarea");
+            textarea?.focus();
+            textarea?.setSelectionRange(textarea.value.length, textarea.value.length);
+
+            // Cmd/Ctrl + Enter to save
+            textarea?.addEventListener("keydown", async (e) => {
+              if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                e.preventDefault();
+                const form = editContainer.querySelector(".edit-form");
+                form?.dispatchEvent(new Event("submit"));
+              }
+            });
+
+            // Cancel button
+            const cancelBtn = editContainer.querySelector(".cancel-edit");
+            cancelBtn?.addEventListener("click", () => {
+              commentText.classList.remove("hidden");
+              editContainer.classList.add("hidden");
+              editContainer.innerHTML = "";
+            });
+
+            // Submit form
+            const form = editContainer.querySelector(".edit-form");
+            form?.addEventListener("submit", async (e) => {
+              e.preventDefault();
+              const newContent = textarea?.value.trim();
+
+              if (!newContent) return;
+
+              const { error } = await supabase
+                .from("comments")
+                .update({ content: newContent, updated_at: new Date().toISOString() })
+                .eq("id", commentId)
+                .eq("user_id", currentUserId);
+
+              if (error) {
+                console.error("Error updating comment:", error);
+                alert("Failed to update comment");
+                return;
+              }
+
+              await loadComments();
+            });
+          } else {
+            // Hide edit form, show comment text
+            commentText.classList.remove("hidden");
+            editContainer.classList.add("hidden");
+            editContainer.innerHTML = "";
           }
         });
       });
