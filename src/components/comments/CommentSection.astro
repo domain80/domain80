@@ -261,9 +261,9 @@ const { slug } = Astro.props;
   </div>
 
   <!-- Comments List -->
-  <ul id="comments-list" class="comment-thread" style="--lines: true;">
-    <li class="text-zinc-500 text-sm list-none">Loading comments...</li>
-  </ul>
+  <div id="comments-list" class="comment-thread" style="--lines: true;">
+    <p class="text-zinc-500 text-sm">Loading comments...</p>
+  </div>
 </section>
 
 <script>
@@ -448,7 +448,6 @@ const { slug } = Astro.props;
       if (!skipCache && currentSort === "recent") {
         const cached = getCachedComments(slug);
         if (cached) {
-          // Use cached data
           if (commentCount) {
             commentCount.textContent = String(cached.count);
           }
@@ -505,7 +504,7 @@ const { slug } = Astro.props;
 
       if (!comments || comments.length === 0) {
         commentsList.innerHTML =
-          '<li class="text-zinc-500 text-sm list-none">No comments yet. Be the first to comment!</li>';
+          '<p class="text-zinc-500 text-sm">No comments yet. Be the first to comment!</p>';
         return;
       }
 
@@ -584,38 +583,40 @@ const { slug } = Astro.props;
             ? reactions.find((r) => r.user_id === currentUserId)?.reaction_type
             : null;
 
+          // Avatar size - consistent for all depths
+          const avatarClass = "w-8 h-8";
+
           return `
-          <li class="comment-item ${hasReplies ? "has-replies" : ""}" data-comment-id="${comment.id}">
-            <div class="comment-row">
-              <div class="thread-line-cell"></div>
-              <div class="comment-main">
-                <img src="${comment.profiles?.avatar_url || "/default-avatar.png"}" alt="${comment.profiles?.username || "User"}" class="avatar rounded-full object-cover flex-shrink-0" />
-                <div class="comment-body flex-1 min-w-0">
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">${comment.profiles?.username || "Anonymous"}</span>
-                    <span class="text-xs text-zinc-500 dark:text-zinc-400">${timeAgo}</span>
-                  </div>
-                  <div class="comment-text text-sm text-zinc-700 dark:text-zinc-200 mb-3 leading-relaxed" data-original-content="${escapeHtml(comment.content)}">${renderMarkdown(comment.content)}</div>
-                  <div class="edit-form-container hidden mb-3"></div>
-                  <div class="flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
-                    <button class="like-btn flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-300 ${userReaction === "like" ? "text-accent" : ""}" data-comment-id="${comment.id}" data-reaction="like" data-user-reaction="${userReaction || ""}">
-                      <svg class="w-4 h-4" fill="${userReaction === "like" ? "currentColor" : "none"}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
-                      <span>${likes || ""}</span>
-                    </button>
-                    <button class="dislike-btn flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-300 ${userReaction === "dislike" ? "text-accent" : ""}" data-comment-id="${comment.id}" data-reaction="dislike" data-user-reaction="${userReaction || ""}">
-                      <svg class="w-4 h-4" fill="${userReaction === "dislike" ? "currentColor" : "none"}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"></path></svg>
-                      <span>${dislikes || ""}</span>
-                    </button>
-                    ${currentUserId ? `<button class="reply-btn hover:text-zinc-700 dark:hover:text-zinc-300" data-parent-id="${comment.id}">Reply</button>` : ""}
-                    ${isOwner ? `<button class="edit-btn hover:text-zinc-700 dark:hover:text-zinc-300" data-comment-id="${comment.id}">Edit</button>` : ""}
-                    ${isOwner ? `<button class="delete-btn hover:text-red-500" data-comment-id="${comment.id}">Delete</button>` : ""}
-                  </div>
-                  <div class="reply-form-container hidden mt-3"></div>
+          <div class="comment-item ${hasReplies ? "has-replies" : ""}" style="--depth: ${depth};" data-comment-id="${comment.id}">
+            <div class="comment-content flex gap-3">
+              <div class="avatar-column flex-shrink-0">
+                <img src="${comment.profiles?.avatar_url || "/default-avatar.png"}" alt="${comment.profiles?.username || "User"}" class="${avatarClass} rounded-full object-cover" style="width: var(--avatar-size); height: var(--avatar-size);" />
+              </div>
+              <div class="comment-body flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">${comment.profiles?.username || "Anonymous"}</span>
+                  <span class="text-xs text-zinc-500 dark:text-zinc-400">${timeAgo}</span>
                 </div>
+                <div class="comment-text text-sm text-zinc-700 dark:text-zinc-200 mb-3 leading-relaxed" data-original-content="${escapeHtml(comment.content)}">${renderMarkdown(comment.content)}</div>
+                <div class="edit-form-container hidden mb-3"></div>
+                <div class="flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
+                  <button class="like-btn flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-300 ${userReaction === "like" ? "text-accent" : ""}" data-comment-id="${comment.id}" data-reaction="like" data-user-reaction="${userReaction || ""}">
+                    <svg class="w-4 h-4" fill="${userReaction === "like" ? "currentColor" : "none"}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
+                    <span>${likes || ""}</span>
+                  </button>
+                  <button class="dislike-btn flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-300 ${userReaction === "dislike" ? "text-accent" : ""}" data-comment-id="${comment.id}" data-reaction="dislike" data-user-reaction="${userReaction || ""}">
+                    <svg class="w-4 h-4" fill="${userReaction === "dislike" ? "currentColor" : "none"}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"></path></svg>
+                    <span>${dislikes || ""}</span>
+                  </button>
+                  ${currentUserId ? `<button class="reply-btn hover:text-zinc-700 dark:hover:text-zinc-300" data-parent-id="${comment.id}">Reply</button>` : ""}
+                  ${isOwner ? `<button class="edit-btn hover:text-zinc-700 dark:hover:text-zinc-300" data-comment-id="${comment.id}">Edit</button>` : ""}
+                  ${isOwner ? `<button class="delete-btn hover:text-red-500" data-comment-id="${comment.id}">Delete</button>` : ""}
+                </div>
+                <div class="reply-form-container hidden mt-3"></div>
               </div>
             </div>
-            ${hasReplies ? `<ul class="replies">${renderComments(comment.replies!, currentUserId, depth + 1)}</ul>` : ""}
-          </li>
+            ${hasReplies ? `<div class="replies-container mt-4">${renderComments(comment.replies!, currentUserId, depth + 1)}</div>` : ""}
+          </div>
         `;
         })
         .join("");
@@ -663,27 +664,22 @@ const { slug } = Astro.props;
 
           const target = e.currentTarget as HTMLElement;
           const commentId = target.getAttribute("data-comment-id");
-          const reactionType = target.getAttribute("data-reaction") as
-            | "like"
-            | "dislike";
+          const reactionType = target.getAttribute("data-reaction") as "like" | "dislike";
           const currentReaction = target.getAttribute("data-user-reaction");
 
           if (!commentId) return;
 
-          // Find the comment element and both buttons
           const commentEl = target.closest(".comment-item");
           const likeBtn = commentEl?.querySelector('.like-btn[data-comment-id="' + commentId + '"]') as HTMLElement;
           const dislikeBtn = commentEl?.querySelector('.dislike-btn[data-comment-id="' + commentId + '"]') as HTMLElement;
           const likeCountSpan = likeBtn?.querySelector("span");
           const dislikeCountSpan = dislikeBtn?.querySelector("span");
 
-          // Get current counts
           const currentLikes = parseInt(likeCountSpan?.textContent || "0") || 0;
           const currentDislikes = parseInt(dislikeCountSpan?.textContent || "0") || 0;
 
-          // Optimistic update - update UI immediately
+          // Optimistic update
           if (currentReaction === reactionType) {
-            // Removing reaction
             target.classList.remove("text-accent");
             target.setAttribute("data-user-reaction", "");
             target.querySelector("svg")?.setAttribute("fill", "none");
@@ -693,19 +689,14 @@ const { slug } = Astro.props;
               dislikeCountSpan.textContent = currentDislikes > 1 ? String(currentDislikes - 1) : "";
             }
           } else if (currentReaction) {
-            // Switching reaction
             const otherBtn = reactionType === "like" ? dislikeBtn : likeBtn;
             const otherCountSpan = reactionType === "like" ? dislikeCountSpan : likeCountSpan;
-
-            // Remove from other
             otherBtn?.classList.remove("text-accent");
             otherBtn?.querySelector("svg")?.setAttribute("fill", "none");
             if (otherCountSpan) {
               const otherCount = parseInt(otherCountSpan.textContent || "0") || 0;
               otherCountSpan.textContent = otherCount > 1 ? String(otherCount - 1) : "";
             }
-
-            // Add to current
             target.classList.add("text-accent");
             target.setAttribute("data-user-reaction", reactionType);
             target.querySelector("svg")?.setAttribute("fill", "currentColor");
@@ -714,12 +705,9 @@ const { slug } = Astro.props;
             } else if (reactionType === "dislike" && dislikeCountSpan) {
               dislikeCountSpan.textContent = String(currentDislikes + 1);
             }
-
-            // Update both buttons' data-user-reaction
             likeBtn?.setAttribute("data-user-reaction", reactionType === "like" ? "like" : "");
             dislikeBtn?.setAttribute("data-user-reaction", reactionType === "dislike" ? "dislike" : "");
           } else {
-            // New reaction
             target.classList.add("text-accent");
             target.setAttribute("data-user-reaction", reactionType);
             target.querySelector("svg")?.setAttribute("fill", "currentColor");
@@ -728,36 +716,20 @@ const { slug } = Astro.props;
             } else if (reactionType === "dislike" && dislikeCountSpan) {
               dislikeCountSpan.textContent = String(currentDislikes + 1);
             }
-
-            // Update both buttons' data-user-reaction
             likeBtn?.setAttribute("data-user-reaction", reactionType === "like" ? "like" : "");
             dislikeBtn?.setAttribute("data-user-reaction", reactionType === "dislike" ? "dislike" : "");
           }
 
-          // Invalidate cache since we modified data
           invalidateComments(slug);
 
-          // Send to server in background (no full reload)
+          // Send to server in background
           if (currentReaction === reactionType) {
-            await supabase
-              .from("comment_reactions")
-              .delete()
-              .eq("comment_id", commentId)
-              .eq("user_id", currentUserId);
+            await supabase.from("comment_reactions").delete().eq("comment_id", commentId).eq("user_id", currentUserId);
           } else if (currentReaction) {
-            await supabase
-              .from("comment_reactions")
-              .update({ reaction_type: reactionType })
-              .eq("comment_id", commentId)
-              .eq("user_id", currentUserId);
+            await supabase.from("comment_reactions").update({ reaction_type: reactionType }).eq("comment_id", commentId).eq("user_id", currentUserId);
           } else {
-            await supabase.from("comment_reactions").insert({
-              comment_id: commentId,
-              user_id: currentUserId,
-              reaction_type: reactionType,
-            });
+            await supabase.from("comment_reactions").insert({ comment_id: commentId, user_id: currentUserId, reaction_type: reactionType });
           }
-          // No loadComments() - optimistic update already handled UI
         });
       });
     }
@@ -831,7 +803,6 @@ const { slug } = Astro.props;
                 return;
               }
 
-              // Invalidate cache and reload
               invalidateComments(slug);
               await loadComments(true);
             });
@@ -856,12 +827,9 @@ const { slug } = Astro.props;
 
           if (!commentText || !editContainer) return;
 
-          // Get original content
           const originalContent = commentText.getAttribute("data-original-content") || "";
 
-          // Toggle edit form
           if (editContainer.classList.contains("hidden")) {
-            // Hide comment text, show edit form
             commentText.classList.add("hidden");
             editContainer.classList.remove("hidden");
             editContainer.innerHTML = `
@@ -872,47 +840,35 @@ const { slug } = Astro.props;
                   class="w-full px-3 py-2 text-sm rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
                 >${originalContent}</textarea>
                 <div class="flex justify-end gap-2">
-                  <button type="button" class="cancel-edit text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300">
-                    Cancel
-                  </button>
-                  <button type="submit" class="px-3 py-1 text-sm bg-accent text-white rounded-lg hover:opacity-90 transition-opacity">
-                    Save
-                  </button>
+                  <button type="button" class="cancel-edit text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300">Cancel</button>
+                  <button type="submit" class="px-3 py-1 text-sm bg-accent text-white rounded-lg hover:opacity-90 transition-opacity">Save</button>
                 </div>
               </form>
             `;
 
-            // Focus textarea
             const textarea = editContainer.querySelector("textarea");
             textarea?.focus();
             textarea?.setSelectionRange(textarea.value.length, textarea.value.length);
 
-            // Cmd/Ctrl + Enter to save
             textarea?.addEventListener("keydown", async (e) => {
               if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
                 e.preventDefault();
-                const form = editContainer.querySelector(".edit-form");
-                form?.dispatchEvent(new Event("submit"));
+                editContainer.querySelector(".edit-form")?.dispatchEvent(new Event("submit"));
               }
             });
 
-            // Cancel button
-            const cancelBtn = editContainer.querySelector(".cancel-edit");
-            cancelBtn?.addEventListener("click", () => {
+            editContainer.querySelector(".cancel-edit")?.addEventListener("click", () => {
               commentText.classList.remove("hidden");
               editContainer.classList.add("hidden");
               editContainer.innerHTML = "";
             });
 
-            // Submit form
-            const form = editContainer.querySelector(".edit-form");
-            form?.addEventListener("submit", async (e) => {
+            editContainer.querySelector(".edit-form")?.addEventListener("submit", async (e) => {
               e.preventDefault();
               const newContent = textarea?.value.trim();
-
               if (!newContent) return;
 
-              // Optimistic update - update DOM immediately
+              // Optimistic update
               const previousContent = originalContent;
               (commentText as HTMLElement).innerHTML = renderMarkdown(newContent);
               (commentText as HTMLElement).setAttribute("data-original-content", escapeHtml(newContent));
@@ -920,10 +876,8 @@ const { slug } = Astro.props;
               editContainer.classList.add("hidden");
               editContainer.innerHTML = "";
 
-              // Invalidate cache
               invalidateComments(slug);
 
-              // Send to server in background
               const { error } = await supabase
                 .from("comments")
                 .update({ content: newContent, updated_at: new Date().toISOString() })
@@ -931,7 +885,6 @@ const { slug } = Astro.props;
                 .eq("user_id", currentUserId);
 
               if (error) {
-                // Revert on error
                 console.error("Error updating comment:", error);
                 (commentText as HTMLElement).innerHTML = renderMarkdown(previousContent);
                 (commentText as HTMLElement).setAttribute("data-original-content", escapeHtml(previousContent));
@@ -939,7 +892,6 @@ const { slug } = Astro.props;
               }
             });
           } else {
-            // Hide edit form, show comment text
             commentText.classList.remove("hidden");
             editContainer.classList.add("hidden");
             editContainer.innerHTML = "";
@@ -959,17 +911,13 @@ const { slug } = Astro.props;
 
           if (!confirm("Delete this comment?")) return;
 
-          // Optimistic delete - remove from DOM immediately
-          const removedHtml = commentEl?.outerHTML;
+          // Optimistic delete
           commentEl?.remove();
-
-          // Update comment count
           const currentCount = parseInt(commentCount?.textContent || "0");
           if (commentCount && currentCount > 0) {
             commentCount.textContent = String(currentCount - 1);
           }
 
-          // Invalidate cache
           invalidateComments(slug);
 
           const { error } = await supabase
@@ -981,7 +929,6 @@ const { slug } = Astro.props;
           if (error) {
             console.error("Error deleting comment:", error);
             alert("Failed to delete comment. Refreshing...");
-            // Reload on error to restore state
             await loadComments(true);
           }
         });
@@ -993,95 +940,77 @@ const { slug } = Astro.props;
       const content = commentInput?.value.trim();
       if (!content || !session?.user || !commentsList) return;
 
-      // Generate temporary ID for optimistic update
       const tempId = `temp-${Date.now()}`;
+      const avatarClass = "w-8 h-8";
 
-      // Build optimistic comment HTML
+      // Build optimistic comment HTML (using original div structure)
       const optimisticHtml = `
-        <li class="comment-item" data-comment-id="${tempId}">
-          <div class="comment-row">
-            <div class="thread-line-cell"></div>
-            <div class="comment-main">
-              <img src="${currentUserProfile?.avatar_url || "/default-avatar.png"}" alt="${currentUserProfile?.username || "User"}" class="avatar rounded-full object-cover flex-shrink-0" />
-              <div class="comment-body flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">${currentUserProfile?.username || "Anonymous"}</span>
-                  <span class="text-xs text-zinc-500 dark:text-zinc-400">just now</span>
-                </div>
-                <div class="comment-text text-sm text-zinc-700 dark:text-zinc-200 mb-3 leading-relaxed" data-original-content="${escapeHtml(content)}">${renderMarkdown(content)}</div>
-                <div class="edit-form-container hidden mb-3"></div>
-                <div class="flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
-                  <button class="like-btn flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-300" data-comment-id="${tempId}" data-reaction="like" data-user-reaction="">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
-                    <span></span>
-                  </button>
-                  <button class="dislike-btn flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-300" data-comment-id="${tempId}" data-reaction="dislike" data-user-reaction="">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"></path></svg>
-                    <span></span>
-                  </button>
-                  <button class="reply-btn hover:text-zinc-700 dark:hover:text-zinc-300" data-parent-id="${tempId}">Reply</button>
-                  <button class="edit-btn hover:text-zinc-700 dark:hover:text-zinc-300" data-comment-id="${tempId}">Edit</button>
-                  <button class="delete-btn hover:text-red-500" data-comment-id="${tempId}">Delete</button>
-                </div>
-                <div class="reply-form-container hidden mt-3"></div>
+        <div class="comment-item" style="--depth: 0;" data-comment-id="${tempId}">
+          <div class="comment-content flex gap-3">
+            <div class="avatar-column flex-shrink-0">
+              <img src="${currentUserProfile?.avatar_url || "/default-avatar.png"}" alt="${currentUserProfile?.username || "User"}" class="${avatarClass} rounded-full object-cover" style="width: var(--avatar-size); height: var(--avatar-size);" />
+            </div>
+            <div class="comment-body flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">${currentUserProfile?.username || "Anonymous"}</span>
+                <span class="text-xs text-zinc-500 dark:text-zinc-400">just now</span>
               </div>
+              <div class="comment-text text-sm text-zinc-700 dark:text-zinc-200 mb-3 leading-relaxed" data-original-content="${escapeHtml(content)}">${renderMarkdown(content)}</div>
+              <div class="edit-form-container hidden mb-3"></div>
+              <div class="flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
+                <button class="like-btn flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-300" data-comment-id="${tempId}" data-reaction="like" data-user-reaction="">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
+                  <span></span>
+                </button>
+                <button class="dislike-btn flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-300" data-comment-id="${tempId}" data-reaction="dislike" data-user-reaction="">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"></path></svg>
+                  <span></span>
+                </button>
+                <button class="reply-btn hover:text-zinc-700 dark:hover:text-zinc-300" data-parent-id="${tempId}">Reply</button>
+                <button class="edit-btn hover:text-zinc-700 dark:hover:text-zinc-300" data-comment-id="${tempId}">Edit</button>
+                <button class="delete-btn hover:text-red-500" data-comment-id="${tempId}">Delete</button>
+              </div>
+              <div class="reply-form-container hidden mt-3"></div>
             </div>
           </div>
-        </li>
+        </div>
       `;
 
-      // Optimistic update - add to DOM immediately
+      // Optimistic update
       const firstComment = commentsList.querySelector(".comment-item");
       if (firstComment) {
         firstComment.insertAdjacentHTML("beforebegin", optimisticHtml);
       } else {
-        // No comments yet, replace the "no comments" message
         commentsList.innerHTML = optimisticHtml;
       }
 
-      // Update comment count
       const currentCount = parseInt(commentCount?.textContent || "0");
       if (commentCount) commentCount.textContent = String(currentCount + 1);
-
-      // Clear input
       if (commentInput) commentInput.value = "";
 
-      // Send to server in background
+      // Send to server
       const { data, error } = await supabase
         .from("comments")
-        .insert({
-          post_slug: slug,
-          user_id: session.user.id,
-          content,
-        })
+        .insert({ post_slug: slug, user_id: session.user.id, content })
         .select()
         .single();
 
       if (error) {
-        // Remove optimistic comment on error
         console.error("Error posting comment:", error);
-        const tempComment = commentsList.querySelector(`[data-comment-id="${tempId}"]`);
-        tempComment?.remove();
+        commentsList.querySelector(`[data-comment-id="${tempId}"]`)?.remove();
         if (commentCount) commentCount.textContent = String(currentCount);
         alert("Failed to post comment");
         return;
       }
 
-      // Invalidate cache since we added new comment
       invalidateComments(slug);
 
-      // Update the temp ID with the real ID
+      // Update temp ID with real ID
       const tempComment = commentsList.querySelector(`[data-comment-id="${tempId}"]`);
       if (tempComment && data) {
         tempComment.setAttribute("data-comment-id", data.id);
-        // Update all buttons with the real ID
-        tempComment.querySelectorAll(`[data-comment-id="${tempId}"]`).forEach(el => {
-          el.setAttribute("data-comment-id", data.id);
-        });
-        tempComment.querySelectorAll(`[data-parent-id="${tempId}"]`).forEach(el => {
-          el.setAttribute("data-parent-id", data.id);
-        });
-        // Attach handlers to the new comment
+        tempComment.querySelectorAll(`[data-comment-id="${tempId}"]`).forEach(el => el.setAttribute("data-comment-id", data.id));
+        tempComment.querySelectorAll(`[data-parent-id="${tempId}"]`).forEach(el => el.setAttribute("data-parent-id", data.id));
         attachEditHandlers(session.user.id);
         attachDeleteHandlers(session.user.id);
         attachReactionHandlers(session.user.id);
@@ -1112,99 +1041,80 @@ const { slug } = Astro.props;
 </script>
 
 <style is:global>
-  /* === Comment Thread Base Variables === */
+  /* Comment Thread Container */
   .comment-thread {
-    --avatar-size: 2rem;
-    --line-color: #d4d4d8;
-    --line-width: 2px;
-    --line-radius: 8px;
-    --indent: calc(var(--avatar-size) + 0.75rem); /* avatar + gap */
-    list-style: none;
-    padding: 0;
-    margin: 0;
+    --thread-line-color: #d4d4d8; /* zinc-300 */
+    --thread-line-width: 1px;
+    --avatar-size: 2rem; /* 32px for all comments */
+    --connector-height: 20px;
+    --connector-width: 28px;
+    --connector-radius: 8px;
   }
 
   .dark .comment-thread {
-    --line-color: #52525b;
+    --thread-line-color: #52525b; /* zinc-600 */
   }
 
-  /* === Comment Item (li) === */
+  /* Remove top margin from first comment */
+  #comments-list > .comment-item:first-child {
+    margin-top: 0 !important;
+  }
+
+  /* Comment Item Base */
   .comment-item {
-    list-style: none;
-    margin-top: 1rem;
     position: relative;
+    margin-top: 1.25rem;
   }
 
-  .comment-thread > .comment-item:first-child {
-    margin-top: 0;
-  }
-
-  /* === Comment Row - simple flex, no grid === */
-  .comment-row {
-    display: flex;
-    gap: 0.75rem;
-  }
-
-  /* Hide the thread-line-cell - we don't need it anymore */
-  .thread-line-cell {
-    display: none;
-  }
-
-  /* === Comment Main (avatar + body) === */
-  .comment-main {
-    display: flex;
-    gap: 0.75rem;
-    flex: 1;
-  }
-
-  .comment-main .avatar {
-    width: var(--avatar-size);
-    height: var(--avatar-size);
-    flex-shrink: 0;
+  /* Avatar column should be above thread lines */
+  .avatar-column {
     position: relative;
     z-index: 1;
   }
 
-  /* === Nested Replies === */
-  .replies {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    margin-left: calc(var(--avatar-size) / 2); /* Align with center of parent avatar */
-    padding-left: calc(var(--avatar-size) / 2 + 0.75rem); /* Rest of avatar + gap */
+  /* Replies Container - indented for connectors */
+  .replies-container {
+    position: relative;
+    padding-left: calc(1rem + var(--connector-width));
   }
 
-  /* === Thread Lines === */
-
-  /* 1. Vertical line from parent with replies - positioned on the comment-item */
-  .comment-item.has-replies::after {
+  /* L-connector for each reply */
+  .replies-container > .comment-item::before {
     content: "";
     position: absolute;
-    left: calc(var(--avatar-size) / 2 - var(--line-width) / 2);
-    top: var(--avatar-size);
-    bottom: 0;
-    width: var(--line-width);
-    background: var(--line-color);
+    left: calc(-1 * var(--connector-width));
+    top: calc(-1.25rem); /* Extend up through margin */
+    height: calc(var(--avatar-size) / 2 + 1.25rem);
+    width: var(--connector-width);
+    border-left: var(--thread-line-width) solid var(--thread-line-color);
+    border-bottom: var(--thread-line-width) solid var(--thread-line-color);
+    border-bottom-left-radius: var(--connector-radius);
   }
 
-  /* 2. L-connector for each reply */
-  .replies > .comment-item::before {
+  /* First reply extends higher to reach parent */
+  .replies-container > .comment-item:first-child::before {
+    top: calc(-1.25rem - 1rem - 2rem);
+    height: calc(var(--avatar-size) / 2 + 4.5rem);
+  }
+
+  /* Non-last replies extend down to next sibling */
+  .replies-container > .comment-item:not(:last-child)::after {
     content: "";
     position: absolute;
-    left: calc(-1 * (var(--avatar-size) / 2 + 0.75rem)); /* Back to parent's vertical line */
-    top: calc(-1rem);
-    width: calc(var(--avatar-size) / 2 + 0.75rem + var(--avatar-size) / 2);
-    height: calc(var(--avatar-size) / 2 + 1rem);
-    border-left: var(--line-width) solid var(--line-color);
-    border-bottom: var(--line-width) solid var(--line-color);
-    border-bottom-left-radius: var(--line-radius);
-    border-right: none;
-    border-top: none;
+    left: calc(-1 * var(--connector-width));
+    top: calc(var(--avatar-size) / 2);
+    bottom: calc(-1.25rem);
+    width: var(--thread-line-width);
+    background-color: var(--thread-line-color);
   }
 
-  /* === Toggle Lines Off === */
-  .comment-thread[style*="--lines: false"] .comment-item::before,
-  .comment-thread[style*="--lines: false"] .comment-item::after {
+  /* Thread lines toggle */
+  .comment-thread[style*="--lines: false"]
+    .replies-container
+    > .comment-item::before,
+  .comment-thread[style*="--lines: false"]
+    .replies-container
+    > .comment-item::after {
     display: none;
   }
 </style>
