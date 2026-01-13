@@ -7,52 +7,48 @@ tags: ["AI", "software-development", "career", "craftsmanship"]
 featured: true
 ---
 
-Back in the day, I had a simple vision: build the best software I could, get the algorithms right, structure the data thoughtfully, push to GitHub Pages, deploy with Vercel or Netlify, and call it done. There was a certain satisfaction in that workflow—a sense that the craft itself mattered.
+Back in the day, my goal was simple: build good software. Get the algorithms right. Structure data carefully. Debug until things made sense. Push to GitHub Pages, deploy with Vercel or Netlify, and move on. There was satisfaction in that workflow because the craft itself mattered.
 
-Today, that approach doesn't even qualify as the bare minimum. AI this, AI that. Everyone can prompt their way to something that looks good, ships fast, and checks the boxes. The conversation has shifted entirely toward speed, toward "just building," toward not over-engineering. And somewhere in that shift, we've stopped talking about rigor. We've stopped celebrating the basic competence that once defined our field.
+Today, that mindset barely qualifies as baseline. AI is everywhere. Anyone can prompt their way to something that looks polished, ships quickly, and checks the right boxes. The conversation has shifted toward speed, toward “just building,” toward avoiding over-engineering. Somewhere in that shift, rigor stopped being part of the discussion. Basic competence, once the standard, is no longer celebrated.
 
 ## When Rare Things Become Common
 
-There's an economic principle at work here: scarcity creates value. When coding was hard, when debugging required patience, when understanding data structures took real effort—those skills had worth. People developed a sense of purpose in pursuing mastery. The calluses from that hard work meant something.
+There is a simple economic truth here: scarcity creates value. When coding was hard, when debugging demanded patience and understanding data structures took real effort, those skills mattered. Mastery had weight because it was earned slowly.
 
-But what happens when AI compresses that journey from months to minutes? When the rare thing becomes common, what becomes valuable instead?
+AI compresses that journey. What once took months now takes minutes. When the rare thing becomes common, the question is not whether output increases. It does. The question is what becomes valuable instead.
 
-The standard answer is: "AI will only replace those who don't know how to use it." But let's be honest about what that means. It means you become more obsolete at typing, at coding, at debugging, at code reviews, at research, at fixes. More obsolete at the deeper understanding that comes from wrestling with a problem yourself. More obsolete at the personalized experience of building software and improving your own code. More obsolete, in some fundamental sense, at the ownership of your craft.
+The usual reassurance is that AI will only replace those who do not know how to use it. That framing hides a quieter cost. Using AI often means doing less of the work that builds intuition. Less manual debugging. Less depth in code reviews. Less time wrestling with failures. Over time, that understanding erodes. You still ship, but you own less of what you ship.
 
-## The Paradox We're Living
+## Convenience and Skill Atrophy
 
-Here's what strikes me as strange: developers enthusiastically build and celebrate AI tools that are actively taking away their profession. "It's only taking away *other* people's jobs," we tell ourselves. "I know how to use it, so I'm safe."
+I use AI tools. They are useful and often impressive. This is not a rejection of progress. It is a concern about what convenience quietly replaces.
 
-But are we? When we tell AI what to do and it does it, we've handed over the work. The work that made us valuable is now so common that we need to do things differently—carve out new niches, reinvent ourselves, find new skills that make us indispensable again.
+A beginner today might learn how to prompt before learning how to debug. They might review AI-generated code before ever writing it from scratch. They might optimize prompts instead of algorithms.
 
-The cycle is almost comedic if it weren't so concerning.
+That changes the learning curve. Building a hash table by hand teaches trade-offs. Refactoring a messy codebase builds judgment. Spending hours tracking down a segmentation fault develops instincts that no explanation can substitute. These skills come from friction.
 
-## The Atrophy Question
+When struggle is optional, learning becomes optional too.
 
-Here's what keeps me up at night: **How can we become good at something when the process of doing that thing constantly allows us to atrophy the skills that brought us to where we are?**
+The junior developer who lets Copilot fix a memory leak without understanding pointers has not learned memory management. They have learned how to ask for a fix. Those are not the same thing.
 
-Think about a beginner today. They learn to prompt before they learn to debug. They learn to review AI-generated code before they learn to write it from scratch. They optimize prompts instead of optimizing algorithms.
+The “just build” mindset assumes shipping is the only metric that matters. But much of engineering skill is developed during the slow and uncomfortable parts of building, when things break and the cause is not yet clear.
 
-Will they ever develop the intuition that comes from building a hash table by hand? The pattern recognition that emerges from refactoring the same messy codebase three times? The debugging instinct that develops only after you've spent hours tracking down a segmentation fault?
+## The Paradox
 
-Or will we create a generation of developers who are permanently intermediate—fluent in getting AI to produce code, but unable to evaluate whether that code is actually good?
+There is something strange about how eagerly developers celebrate tools that reduce the need for developers. Each major model release brings another wave of posts declaring that software engineering is dead. These are often shared enthusiastically by engineers themselves.
 
-## The Convenience Trade-Off
+The assumption is always personal immunity. It is other people who will be replaced. But if AI reduces the need for deep understanding, and fewer people develop that understanding, the profession changes in ways that are hard to reverse.
 
-I'm not a luddite. I use AI tools. They're convenient, often brilliant, sometimes magical. But convenience comes with collateral damage, and we're not being honest about what we're trading away.
+If fewer engineers can evaluate correctness, performance, or long-term maintainability, the ceiling for quality drops, even if output increases.
 
-When we get the luxury of skipping the struggle, we miss the learning that happens *in* the struggle. The junior developer who uses Copilot to fix a memory leak without understanding pointers hasn't learned about memory management—they've learned prompt engineering. Those are not the same skill.
+## My Practical Way Forward
 
-The "just build" mentality assumes that shipping is the only thing that matters. But what if the process of building—slowly, painfully, manually—is where the actual skill development happens? What if we're optimizing for the wrong metric?
+I believe change is not optional, and nostalgia is not a strategy. The answer may not be to reject AI, but to be deliberate about how it is used.
 
-## What Comes Next
+Again I believe the baseline still matters. Fundamentals still matter. The goal should be to use AI to amplify understanding, not replace it. That means knowing what code you would have written before asking AI to do so or improve it, understanding failures you ask AI to handle, treating AI output as a draft rather than an answer, and ensuring learning still happens where convenience encourages skipping it.
 
-These might just be thoughts. Anxieties from someone who learned to code in a different era, resisting inevitable change. Every generation has faced this: compilers replaced assembly, frameworks replaced manual DOM manipulation, ORMs replaced raw SQL. Mastery has always adapted.
+Mastery has always adapted. We moved from assembly to compilers, from manual DOM manipulation to frameworks, from raw SQL to ORMs. Each shift raised the level of abstraction while still requiring understanding beneath it.
 
-But maybe this time is different. Maybe we're not just changing tools—we're changing the fundamental relationship between struggle and skill. Maybe we're about to find out whether mastery can develop without friction, or whether AI-assisted development creates a ceiling we don't yet recognize.
+Maybe this time is no different. Or maybe it is.
 
-One thing is certain: we'll all find out soon enough. The question is whether we'll be ready for the answer, or whether we'll have atrophied too much to recognize what we've lost.
-
----
-
-*What do you think? Are we building a generation of developers who know how to use AI but not how to build software? Or is this just the natural evolution of our craft? I'm genuinely curious where you stand on this.*
+What feels new is how thoroughly struggle can be removed from the process. We are about to learn whether skill can develop without friction, or whether AI-assisted development quietly creates a ceiling that only becomes visible once we hit it.
