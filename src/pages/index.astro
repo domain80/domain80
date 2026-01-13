@@ -60,27 +60,79 @@ const workProjects = allProjects
     <h2 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-6">
       Projects
     </h2>
-    <div class="space-y-8">
-      {
-        personalProjects.map((project) => (
-          <ProjectCard
-            title={project.data.title}
-            description={project.data.description}
-            year={project.data.year}
-            endYear={project.data.endYear}
-            tags={project.data.tags}
-            link={project.data.link}
-            linkText={project.data.linkText}
-            slug={project.id}
-            image={project.data.image}
-          />
-        ))
-      }
+    <div class="relative">
+      <!-- Timeline vertical line -->
+      <div class="absolute left-[7px] top-2 bottom-2 w-0.5 bg-zinc-200 dark:bg-zinc-700"></div>
+
+      <div class="space-y-8">
+        {
+          personalProjects.map((project) => {
+            const yearRange = project.data.endYear
+              ? `${project.data.year} - ${project.data.endYear}`
+              : project.data.year;
+            const showStatusBadge = project.data.status === "In Development";
+            const showImage = project.data.image && !["Ping", "Swift"].includes(project.data.title);
+
+            return (
+              <div class="relative pl-8">
+                <!-- Timeline dot -->
+                <div class="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-accent border-4 border-white dark:border-zinc-900"></div>
+
+                <!-- Content -->
+                <article class="space-y-3">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h4 class="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                        {project.data.title}
+                      </h4>
+                      {showStatusBadge && (
+                        <Badge variant="amber" pill>{project.data.status}</Badge>
+                      )}
+                    </div>
+                    <span class="text-sm text-zinc-500 dark:text-zinc-400">{yearRange}</span>
+                  </div>
+
+                  {project.data.image && (
+                    <div class="aspect-video max-h-60 bg-zinc-300 dark:bg-zinc-800 rounded-lg overflow-hidden">
+                      <img
+                        src={project.data.image}
+                        alt={project.data.title}
+                        class="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+
+                  <p class="text-zinc-700 dark:text-zinc-300 leading-relaxed">
+                    {project.data.description}
+                  </p>
+
+                  <!-- Tech tags -->
+                  <div class="flex flex-wrap gap-2">
+                    {project.data.tags.map((tag) => <Badge variant="tech">{tag}</Badge>)}
+                  </div>
+
+                  {project.data.link && (
+                    <a
+                      href={project.data.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center gap-1 text-sm text-accent hover:text-accent-dark transition-colors"
+                    >
+                      <span>{project.data.linkText || "View project →"}</span>
+                      <Icon name="tabler:external-link" class="w-4 h-4" />
+                    </a>
+                  )}
+                </article>
+              </div>
+            );
+          })
+        }
+      </div>
     </div>
   </section>
 
   <!-- Experience Section -->
-  <section id="experience" class="scroll-mt-48">
+  <section id="experience" class="scroll-mt-48 min-h-[80vh]">
     <h2 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-6">
       Experience
     </h2>
@@ -104,9 +156,9 @@ const workProjects = allProjects
                 <!-- Content -->
                 <article class="space-y-2">
                   <div>
-                    <h3 class="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                    <h4 class="text-base font-semibold text-zinc-900 dark:text-zinc-100">
                       {project.data.title}
-                    </h3>
+                    </h4>
                     <span class="text-sm text-zinc-500 dark:text-zinc-400">{yearRange}</span>
                   </div>
 

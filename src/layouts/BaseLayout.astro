@@ -100,32 +100,37 @@ const siteTitle = `${title} | David Mainoo`;
 
     <!-- Prevent FOUC for dark mode -->
     <script is:inline>
-      const theme = (() => {
-        if (
-          typeof localStorage !== "undefined" &&
-          localStorage.getItem("theme")
-        ) {
-          return localStorage.getItem("theme");
+      // Shared function to get current theme
+      function getTheme() {
+        // Check sessionStorage first (user's explicit choice)
+        const saved = sessionStorage.getItem("theme");
+        if (saved === "dark" || saved === "light") {
+          return saved;
         }
-        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-          return "dark";
-        }
-        return "light";
-      })();
-
-      if (theme === "dark") {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
+        // Fall back to system preference
+        return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
       }
 
-      // Persist theme across page transitions
-      document.addEventListener("astro:after-swap", () => {
-        const savedTheme = localStorage.getItem("theme");
-        if (savedTheme === "dark") {
+      // Apply theme to document
+      function applyTheme() {
+        const theme = getTheme();
+        if (theme === "dark") {
           document.documentElement.classList.add("dark");
         } else {
           document.documentElement.classList.remove("dark");
+        }
+      }
+
+      // Apply on initial load
+      applyTheme();
+
+      // Persist theme across page transitions
+      document.addEventListener("astro:after-swap", applyTheme);
+
+      // Listen for system preference changes (only if no explicit choice saved)
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+        if (!sessionStorage.getItem("theme")) {
+          applyTheme();
         }
       });
     </script>

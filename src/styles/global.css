@@ -46,6 +46,7 @@
 
   html {
     font-size: 16px;
+    scroll-behavior: smooth;
     @apply min-h-screen text-zinc-800 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-900;
   }
 
@@ -69,7 +70,7 @@
   h5,
   h6 {
     font-family: var(--font-heading);
-    scroll-margin-top: 2rem;
+    scroll-margin-top: 6rem;
   }
 
 
@@ -82,7 +83,7 @@
     font-family: var(--font-sans);
     font-weight: 600;
     filter: opacity(90%);
-    scroll-margin-top: 2rem;
+    scroll-margin-top: 6rem;
   }
 
 

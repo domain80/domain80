@@ -12,10 +12,12 @@
     "@astrojs/rss": "^4.0.14",
     "@fontsource/bricolage-grotesque": "^5.2.10",
     "@fontsource/hubot-sans": "^5.2.8",
+    "@nanostores/persistent": "^1.2.0",
     "@supabase/supabase-js": "^2.90.1",
     "astro": "^5.16.6",
     "astro-icon": "^1.1.5",
-    "decap-cms-app": "^3.9.0"
+    "decap-cms-app": "^3.9.0",
+    "nanostores": "^1.1.0"
   },
   "devDependencies": {
     "@iconify-json/tabler": "^1.2.26",

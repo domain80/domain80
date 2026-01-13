@@ -48,6 +48,7 @@ import { Icon } from 'astro-icon/components';
 
 <script>
   import { supabase } from '../../lib/supabase';
+  import { $auth, initAuth as initAuthStore, clearAuth } from '../../lib/stores';
 
   async function initAuth() {
     const loadingEl = document.getElementById('auth-loading');
@@ -61,27 +62,20 @@ import { Icon } from 'astro-icon/components';
 
     if (!loadingEl || !loggedOutEl || !loggedInEl) return;
 
-    // Check current session
-    const { data: { session } } = await supabase.auth.getSession();
+    // Use shared auth store (cached or fresh fetch)
+    const authState = await initAuthStore();
 
     loadingEl.classList.add('hidden');
 
-    if (session?.user) {
+    if (authState.user) {
       // User is logged in
       loggedInEl.classList.remove('hidden');
 
-      // Get profile data
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('username, avatar_url')
-        .eq('id', session.user.id)
-        .single();
-
-      if (avatarEl && profile?.avatar_url) {
-        avatarEl.src = profile.avatar_url;
+      if (avatarEl && authState.profile?.avatar_url) {
+        avatarEl.src = authState.profile.avatar_url;
       }
       if (nameEl) {
-        nameEl.textContent = profile?.username || session.user.email || 'User';
+        nameEl.textContent = authState.profile?.username || authState.user.email || 'User';
       }
     } else {
       // User is logged out
@@ -111,6 +105,7 @@ import { Icon } from 'astro-icon/components';
 
     // Logout handler
     logoutBtn?.addEventListener('click', async () => {
+      clearAuth(); // Clear auth cache
       await supabase.auth.signOut();
       window.location.reload();
     });

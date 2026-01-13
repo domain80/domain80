@@ -1,17 +1,21 @@
 ---
 interface Props {
-  variant?: "category" | "tech";
+  variant?: "category" | "tech" | "secondary" | "amber";
+  pill?: boolean;
   class?: string;
 }
 
-const { variant = "category", class: className = "" } = Astro.props;
+const { variant = "category", pill = false, class: className = "" } = Astro.props;
 
 const variants = {
   category: "bg-accent/10 text-accent",
   tech: "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300",
+  secondary: "bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300",
+  amber: "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400",
 };
 
-const classes = `inline-block px-2 py-1 text-xs font-medium rounded ${variants[variant]} ${className}`;
+const radius = pill ? "rounded-full" : "rounded";
+const classes = `inline-block px-2 py-1 text-xs font-medium ${radius} ${variants[variant]} ${className}`;
 ---
 
 <span class={classes}>

@@ -36,6 +36,7 @@ const { title, url, slug } = Astro.props;
 
 <script>
   import { supabase } from '../../lib/supabase';
+  import { $auth, initAuth, getCachedLikes, setCachedLikes, updateCachedLikes } from '../../lib/stores';
 
   async function initShareButtons() {
     const container = document.querySelector('.share-buttons');
@@ -51,41 +52,19 @@ const { title, url, slug } = Astro.props;
     const slug = container.getAttribute('data-slug');
     if (!slug) return;
 
-    // Get session
-    const { data: { session } } = await supabase.auth.getSession();
-    const userId = session?.user?.id;
+    // Use shared auth store
+    const authState = await initAuth();
+    const userId = authState.user?.id;
 
     // Enable like button if logged in
     if (userId) {
       likeBtn.disabled = false;
     }
 
-    // Fetch like count and user's like status
-    async function fetchLikeStatus() {
-      // Get total count
-      const { count } = await supabase
-        .from('post_likes')
-        .select('*', { count: 'exact', head: true })
-        .eq('post_slug', slug);
-
+    function updateLikeUI(count: number, hasLiked: boolean) {
       if (likeCount) {
-        likeCount.textContent = String(count || 0);
+        likeCount.textContent = String(count);
       }
-
-      // Check if user liked
-      if (userId) {
-        const { data } = await supabase
-          .from('post_likes')
-          .select('id')
-          .eq('post_slug', slug)
-          .eq('user_id', userId)
-          .single();
-
-        updateLikeUI(!!data);
-      }
-    }
-
-    function updateLikeUI(hasLiked: boolean) {
       if (hasLiked) {
         likeIcon?.classList.add('hidden');
         likeIconFilled?.classList.remove('hidden');
@@ -97,6 +76,31 @@ const { title, url, slug } = Astro.props;
       }
     }
 
+    // Fetch like count and user's like status - combined query
+    async function fetchLikeStatus(useCache = true) {
+      // Check cache first
+      if (useCache) {
+        const cached = getCachedLikes(slug);
+        if (cached) {
+          updateLikeUI(cached.count, cached.hasLiked);
+          return;
+        }
+      }
+
+      // Combined query - get all likes for this post in one call
+      const { data: likes, count } = await supabase
+        .from('post_likes')
+        .select('user_id', { count: 'exact' })
+        .eq('post_slug', slug);
+
+      const totalCount = count || 0;
+      const hasLiked = userId ? (likes || []).some(like => like.user_id === userId) : false;
+
+      // Update cache
+      setCachedLikes(slug, totalCount, hasLiked);
+      updateLikeUI(totalCount, hasLiked);
+    }
+
     async function toggleLike() {
       if (!userId) {
         alert('Please sign in to like this post');
@@ -105,21 +109,34 @@ const { title, url, slug } = Astro.props;
 
       const isLiked = likeBtn.classList.contains('liked');
 
-      if (isLiked) {
-        // Unlike
-        await supabase
-          .from('post_likes')
-          .delete()
-          .eq('post_slug', slug)
-          .eq('user_id', userId);
-      } else {
-        // Like
-        await supabase
-          .from('post_likes')
-          .insert({ post_slug: slug, user_id: userId });
-      }
+      // Optimistic update - update UI immediately
+      const cachedLikes = getCachedLikes(slug);
+      const currentCount = cachedLikes?.count || parseInt(likeCount?.textContent || '0');
+      const newCount = isLiked ? currentCount - 1 : currentCount + 1;
+      const newLikedState = !isLiked;
 
-      await fetchLikeStatus();
+      updateLikeUI(newCount, newLikedState);
+      updateCachedLikes(slug, newLikedState);
+
+      // Send to server in background
+      try {
+        if (isLiked) {
+          await supabase
+            .from('post_likes')
+            .delete()
+            .eq('post_slug', slug)
+            .eq('user_id', userId);
+        } else {
+          await supabase
+            .from('post_likes')
+            .insert({ post_slug: slug, user_id: userId });
+        }
+      } catch (error) {
+        // Revert on error
+        console.error('Like toggle failed:', error);
+        updateLikeUI(currentCount, isLiked);
+        updateCachedLikes(slug, isLiked);
+      }
     }
 
     likeBtn.addEventListener('click', toggleLike);
@@ -153,7 +170,7 @@ const { title, url, slug } = Astro.props;
       }
     });
 
-    // Initial fetch
+    // Initial fetch (uses cache if available)
     await fetchLikeStatus();
   }
 

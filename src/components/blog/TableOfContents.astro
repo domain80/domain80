@@ -35,45 +35,55 @@ const toc = headings.filter((h) => h.depth <= 3);
 }
 
 <script>
-  // Intersection Observer for active highlighting
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        const id = entry.target.getAttribute("id");
-        const tocLink = document.querySelector(`a[data-heading="${id}"]`);
+  function initTableOfContents() {
+    // Intersection Observer for active highlighting
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const id = entry.target.getAttribute("id");
+          const tocLink = document.querySelector(`a[data-heading="${id}"]`);
 
-        if (entry.isIntersecting) {
-          // Remove active from all
-          document.querySelectorAll(".toc-link").forEach((link) => {
-            link.classList.remove("text-accent", "font-medium");
-            link.classList.add("text-zinc-600", "dark:text-zinc-400");
-          });
+          if (entry.isIntersecting) {
+            // Remove active from all
+            document.querySelectorAll(".toc-link").forEach((link) => {
+              link.classList.remove("text-accent", "font-medium");
+              link.classList.add("text-zinc-600", "dark:text-zinc-400");
+            });
 
-          // Add active to current
-          tocLink?.classList.add("text-accent", "font-medium");
-          tocLink?.classList.remove("text-zinc-600", "dark:text-zinc-400");
+            // Add active to current
+            tocLink?.classList.add("text-accent", "font-medium");
+            tocLink?.classList.remove("text-zinc-600", "dark:text-zinc-400");
+          }
+        });
+      },
+      {
+        rootMargin: "-100px 0px -66%",
+        threshold: 1.0,
+      }
+    );
+
+    // Observe all headings
+    document.querySelectorAll("article h2, article h3").forEach((heading) => {
+      observer.observe(heading);
+    });
+
+    // Smooth scroll on click
+    document.querySelectorAll(".toc-link").forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        const id = link.getAttribute("data-heading");
+        const target = document.getElementById(id || "");
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+          history.pushState(null, "", `#${id}`);
         }
       });
-    },
-    {
-      rootMargin: "-100px 0px -66%",
-      threshold: 1.0,
-    }
-  );
-
-  // Observe all headings
-  document.querySelectorAll("article h2, article h3").forEach((heading) => {
-    observer.observe(heading);
-  });
-
-  // Smooth scroll on click
-  document.querySelectorAll(".toc-link").forEach((link) => {
-    link.addEventListener("click", (e) => {
-      e.preventDefault();
-      const id = link.getAttribute("data-heading");
-      const target = document.getElementById(id || "");
-      target?.scrollIntoView({ behavior: "smooth", block: "start" });
-      history.pushState(null, "", `#${id}`);
     });
-  });
+  }
+
+  // Initial load
+  initTableOfContents();
+
+  // Re-init after Astro view transitions
+  document.addEventListener("astro:after-swap", initTableOfContents);
 </script>

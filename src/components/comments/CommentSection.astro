@@ -103,7 +103,7 @@ const { slug } = Astro.props;
 
   <!-- Comment Form (shown when logged in) -->
   <div id="comment-form-container" class="hidden mb-8">
-    <form id="comment-form" class="bg-zinc-100 dark:bg-zinc-800 rounded-lg p-4">
+    <form id="comment-form" class="bg-zinc-100/80 dark:bg-zinc-800 rounded-lg p-4 border border-zinc-300 dark:border-zinc-700">
       <textarea
         id="comment-input"
         name="content"
@@ -261,9 +261,9 @@ const { slug } = Astro.props;
   </div>
 
   <!-- Comments List -->
-  <div id="comments-list" class="comment-thread" style="--lines: true;">
-    <p class="text-zinc-500 text-sm">Loading comments...</p>
-  </div>
+  <ul id="comments-list" class="comment-thread" style="--lines: true;">
+    <li class="text-zinc-500 text-sm list-none">Loading comments...</li>
+  </ul>
 </section>
 
 <script>
@@ -273,6 +273,12 @@ const { slug } = Astro.props;
     type CommentReaction,
     type Profile,
   } from "../../lib/supabase";
+  import {
+    initAuth,
+    getCachedComments,
+    setCachedComments,
+    invalidateComments,
+  } from "../../lib/stores";
 
   interface CommentWithProfile extends Comment {
     profiles: Profile;
@@ -318,10 +324,14 @@ const { slug } = Astro.props;
       localStorage.setItem("comment-thread-lines", newValue);
     });
 
-    // Check auth state
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    // Use shared auth store (cached)
+    const authState = await initAuth();
+    const session = authState.session;
+
+    // Use profile from auth store
+    const currentUserProfile = authState.profile
+      ? { username: authState.profile.username, avatar_url: authState.profile.avatar_url }
+      : null;
 
     if (session?.user) {
       formContainer?.classList.remove("hidden");
@@ -357,7 +367,7 @@ const { slug } = Astro.props;
                   : "Most liked";
           }
           sortDropdown?.classList.add("hidden");
-          await loadComments();
+          await loadComments(true); // Skip cache when sorting
         }
       });
     });
@@ -428,8 +438,31 @@ const { slug } = Astro.props;
     // Load comments
     await loadComments();
 
-    async function loadComments() {
+    async function loadComments(skipCache = false) {
       if (!commentsList) return;
+
+      // Preserve scroll position
+      const scrollY = window.scrollY;
+
+      // Check cache first (only for default sort)
+      if (!skipCache && currentSort === "recent") {
+        const cached = getCachedComments(slug);
+        if (cached) {
+          // Use cached data
+          if (commentCount) {
+            commentCount.textContent = String(cached.count);
+          }
+          const sortedComments = cached.data as CommentWithProfile[];
+          const threaded = buildThreadedComments(sortedComments);
+          commentsList.innerHTML = renderComments(threaded, session?.user?.id);
+          attachReplyHandlers(session?.user?.id);
+          attachEditHandlers(session?.user?.id);
+          attachDeleteHandlers(session?.user?.id);
+          attachReactionHandlers(session?.user?.id);
+          requestAnimationFrame(() => window.scrollTo(0, scrollY));
+          return;
+        }
+      }
 
       let query = supabase
         .from("comments")
@@ -460,6 +493,11 @@ const { slug } = Astro.props;
         return;
       }
 
+      // Cache the results (for default sort)
+      if (currentSort === "recent" && comments) {
+        setCachedComments(slug, comments, comments.length);
+      }
+
       // Update comment count
       if (commentCount) {
         commentCount.textContent = String(comments?.length || 0);
@@ -467,7 +505,7 @@ const { slug } = Astro.props;
 
       if (!comments || comments.length === 0) {
         commentsList.innerHTML =
-          '<p class="text-zinc-500 text-sm">No comments yet. Be the first to comment!</p>';
+          '<li class="text-zinc-500 text-sm list-none">No comments yet. Be the first to comment!</li>';
         return;
       }
 
@@ -494,6 +532,11 @@ const { slug } = Astro.props;
       attachEditHandlers(session?.user?.id);
       attachDeleteHandlers(session?.user?.id);
       attachReactionHandlers(session?.user?.id);
+
+      // Restore scroll position
+      requestAnimationFrame(() => {
+        window.scrollTo(0, scrollY);
+      });
     }
 
     function buildThreadedComments(
@@ -541,40 +584,38 @@ const { slug } = Astro.props;
             ? reactions.find((r) => r.user_id === currentUserId)?.reaction_type
             : null;
 
-          // Avatar size - consistent for all depths
-          const avatarClass = "w-8 h-8";
-
           return `
-          <div class="comment-item ${hasReplies ? "has-replies" : ""}" style="--depth: ${depth};" data-comment-id="${comment.id}">
-            <div class="comment-content flex gap-3">
-              <div class="avatar-column flex-shrink-0">
-                <img src="${comment.profiles?.avatar_url || "/default-avatar.png"}" alt="${comment.profiles?.username || "User"}" class="${avatarClass} rounded-full object-cover" style="width: var(--avatar-size); height: var(--avatar-size);" />
-              </div>
-              <div class="comment-body flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">${comment.profiles?.username || "Anonymous"}</span>
-                  <span class="text-xs text-zinc-500 dark:text-zinc-400">${timeAgo}</span>
+          <li class="comment-item ${hasReplies ? "has-replies" : ""}" data-comment-id="${comment.id}">
+            <div class="comment-row">
+              <div class="thread-line-cell"></div>
+              <div class="comment-main">
+                <img src="${comment.profiles?.avatar_url || "/default-avatar.png"}" alt="${comment.profiles?.username || "User"}" class="avatar rounded-full object-cover flex-shrink-0" />
+                <div class="comment-body flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">${comment.profiles?.username || "Anonymous"}</span>
+                    <span class="text-xs text-zinc-500 dark:text-zinc-400">${timeAgo}</span>
+                  </div>
+                  <div class="comment-text text-sm text-zinc-700 dark:text-zinc-200 mb-3 leading-relaxed" data-original-content="${escapeHtml(comment.content)}">${renderMarkdown(comment.content)}</div>
+                  <div class="edit-form-container hidden mb-3"></div>
+                  <div class="flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
+                    <button class="like-btn flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-300 ${userReaction === "like" ? "text-accent" : ""}" data-comment-id="${comment.id}" data-reaction="like" data-user-reaction="${userReaction || ""}">
+                      <svg class="w-4 h-4" fill="${userReaction === "like" ? "currentColor" : "none"}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
+                      <span>${likes || ""}</span>
+                    </button>
+                    <button class="dislike-btn flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-300 ${userReaction === "dislike" ? "text-accent" : ""}" data-comment-id="${comment.id}" data-reaction="dislike" data-user-reaction="${userReaction || ""}">
+                      <svg class="w-4 h-4" fill="${userReaction === "dislike" ? "currentColor" : "none"}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"></path></svg>
+                      <span>${dislikes || ""}</span>
+                    </button>
+                    ${currentUserId ? `<button class="reply-btn hover:text-zinc-700 dark:hover:text-zinc-300" data-parent-id="${comment.id}">Reply</button>` : ""}
+                    ${isOwner ? `<button class="edit-btn hover:text-zinc-700 dark:hover:text-zinc-300" data-comment-id="${comment.id}">Edit</button>` : ""}
+                    ${isOwner ? `<button class="delete-btn hover:text-red-500" data-comment-id="${comment.id}">Delete</button>` : ""}
+                  </div>
+                  <div class="reply-form-container hidden mt-3"></div>
                 </div>
-                <div class="comment-text text-sm text-zinc-700 dark:text-zinc-200 mb-3 leading-relaxed" data-original-content="${escapeHtml(comment.content)}">${renderMarkdown(comment.content)}</div>
-                <div class="edit-form-container hidden mb-3"></div>
-                <div class="flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
-                  <button class="like-btn flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-300 ${userReaction === "like" ? "text-accent" : ""}" data-comment-id="${comment.id}" data-reaction="like" data-user-reaction="${userReaction || ""}">
-                    <svg class="w-4 h-4" fill="${userReaction === "like" ? "currentColor" : "none"}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
-                    <span>${likes || ""}</span>
-                  </button>
-                  <button class="dislike-btn flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-300 ${userReaction === "dislike" ? "text-accent" : ""}" data-comment-id="${comment.id}" data-reaction="dislike" data-user-reaction="${userReaction || ""}">
-                    <svg class="w-4 h-4" fill="${userReaction === "dislike" ? "currentColor" : "none"}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"></path></svg>
-                    <span>${dislikes || ""}</span>
-                  </button>
-                  ${currentUserId ? `<button class="reply-btn hover:text-zinc-700 dark:hover:text-zinc-300" data-parent-id="${comment.id}">Reply</button>` : ""}
-                  ${isOwner ? `<button class="edit-btn hover:text-zinc-700 dark:hover:text-zinc-300" data-comment-id="${comment.id}">Edit</button>` : ""}
-                  ${isOwner ? `<button class="delete-btn hover:text-red-500" data-comment-id="${comment.id}">Delete</button>` : ""}
-                </div>
-                <div class="reply-form-container hidden mt-3"></div>
               </div>
             </div>
-            ${hasReplies ? `<div class="replies-container mt-4">${renderComments(comment.replies!, currentUserId, depth + 1)}</div>` : ""}
-          </div>
+            ${hasReplies ? `<ul class="replies">${renderComments(comment.replies!, currentUserId, depth + 1)}</ul>` : ""}
+          </li>
         `;
         })
         .join("");
@@ -582,6 +623,8 @@ const { slug } = Astro.props;
 
     function renderMarkdown(text: string): string {
       let html = escapeHtml(text);
+      // Convert newlines to <br>
+      html = html.replace(/\n/g, "<br>");
       // Bold: **text**
       html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
       // Italic: *text*
@@ -627,31 +670,94 @@ const { slug } = Astro.props;
 
           if (!commentId) return;
 
-          // Use data attribute to determine action (no extra query needed)
+          // Find the comment element and both buttons
+          const commentEl = target.closest(".comment-item");
+          const likeBtn = commentEl?.querySelector('.like-btn[data-comment-id="' + commentId + '"]') as HTMLElement;
+          const dislikeBtn = commentEl?.querySelector('.dislike-btn[data-comment-id="' + commentId + '"]') as HTMLElement;
+          const likeCountSpan = likeBtn?.querySelector("span");
+          const dislikeCountSpan = dislikeBtn?.querySelector("span");
+
+          // Get current counts
+          const currentLikes = parseInt(likeCountSpan?.textContent || "0") || 0;
+          const currentDislikes = parseInt(dislikeCountSpan?.textContent || "0") || 0;
+
+          // Optimistic update - update UI immediately
           if (currentReaction === reactionType) {
-            // Remove reaction (user clicked same button)
+            // Removing reaction
+            target.classList.remove("text-accent");
+            target.setAttribute("data-user-reaction", "");
+            target.querySelector("svg")?.setAttribute("fill", "none");
+            if (reactionType === "like" && likeCountSpan) {
+              likeCountSpan.textContent = currentLikes > 1 ? String(currentLikes - 1) : "";
+            } else if (reactionType === "dislike" && dislikeCountSpan) {
+              dislikeCountSpan.textContent = currentDislikes > 1 ? String(currentDislikes - 1) : "";
+            }
+          } else if (currentReaction) {
+            // Switching reaction
+            const otherBtn = reactionType === "like" ? dislikeBtn : likeBtn;
+            const otherCountSpan = reactionType === "like" ? dislikeCountSpan : likeCountSpan;
+
+            // Remove from other
+            otherBtn?.classList.remove("text-accent");
+            otherBtn?.querySelector("svg")?.setAttribute("fill", "none");
+            if (otherCountSpan) {
+              const otherCount = parseInt(otherCountSpan.textContent || "0") || 0;
+              otherCountSpan.textContent = otherCount > 1 ? String(otherCount - 1) : "";
+            }
+
+            // Add to current
+            target.classList.add("text-accent");
+            target.setAttribute("data-user-reaction", reactionType);
+            target.querySelector("svg")?.setAttribute("fill", "currentColor");
+            if (reactionType === "like" && likeCountSpan) {
+              likeCountSpan.textContent = String(currentLikes + 1);
+            } else if (reactionType === "dislike" && dislikeCountSpan) {
+              dislikeCountSpan.textContent = String(currentDislikes + 1);
+            }
+
+            // Update both buttons' data-user-reaction
+            likeBtn?.setAttribute("data-user-reaction", reactionType === "like" ? "like" : "");
+            dislikeBtn?.setAttribute("data-user-reaction", reactionType === "dislike" ? "dislike" : "");
+          } else {
+            // New reaction
+            target.classList.add("text-accent");
+            target.setAttribute("data-user-reaction", reactionType);
+            target.querySelector("svg")?.setAttribute("fill", "currentColor");
+            if (reactionType === "like" && likeCountSpan) {
+              likeCountSpan.textContent = String(currentLikes + 1);
+            } else if (reactionType === "dislike" && dislikeCountSpan) {
+              dislikeCountSpan.textContent = String(currentDislikes + 1);
+            }
+
+            // Update both buttons' data-user-reaction
+            likeBtn?.setAttribute("data-user-reaction", reactionType === "like" ? "like" : "");
+            dislikeBtn?.setAttribute("data-user-reaction", reactionType === "dislike" ? "dislike" : "");
+          }
+
+          // Invalidate cache since we modified data
+          invalidateComments(slug);
+
+          // Send to server in background (no full reload)
+          if (currentReaction === reactionType) {
             await supabase
               .from("comment_reactions")
               .delete()
               .eq("comment_id", commentId)
               .eq("user_id", currentUserId);
           } else if (currentReaction) {
-            // Update reaction (user switching from like to dislike or vice versa)
             await supabase
               .from("comment_reactions")
               .update({ reaction_type: reactionType })
               .eq("comment_id", commentId)
               .eq("user_id", currentUserId);
           } else {
-            // Create new reaction
             await supabase.from("comment_reactions").insert({
               comment_id: commentId,
               user_id: currentUserId,
               reaction_type: reactionType,
             });
           }
-
-          await loadComments();
+          // No loadComments() - optimistic update already handled UI
         });
       });
     }
@@ -725,7 +831,9 @@ const { slug } = Astro.props;
                 return;
               }
 
-              await loadComments();
+              // Invalidate cache and reload
+              invalidateComments(slug);
+              await loadComments(true);
             });
           } else {
             container.classList.add("hidden");
@@ -740,9 +848,9 @@ const { slug } = Astro.props;
 
       document.querySelectorAll(".edit-btn").forEach((btn) => {
         btn.addEventListener("click", (e) => {
-          const target = e.target as HTMLElement;
+          const target = e.currentTarget as HTMLElement;
           const commentId = target.getAttribute("data-comment-id");
-          const commentEl = target.closest("[data-comment-id]");
+          const commentEl = target.closest(".comment-item");
           const commentText = commentEl?.querySelector(".comment-text");
           const editContainer = commentEl?.querySelector(".edit-form-container");
 
@@ -804,6 +912,18 @@ const { slug } = Astro.props;
 
               if (!newContent) return;
 
+              // Optimistic update - update DOM immediately
+              const previousContent = originalContent;
+              (commentText as HTMLElement).innerHTML = renderMarkdown(newContent);
+              (commentText as HTMLElement).setAttribute("data-original-content", escapeHtml(newContent));
+              commentText.classList.remove("hidden");
+              editContainer.classList.add("hidden");
+              editContainer.innerHTML = "";
+
+              // Invalidate cache
+              invalidateComments(slug);
+
+              // Send to server in background
               const { error } = await supabase
                 .from("comments")
                 .update({ content: newContent, updated_at: new Date().toISOString() })
@@ -811,12 +931,12 @@ const { slug } = Astro.props;
                 .eq("user_id", currentUserId);
 
               if (error) {
+                // Revert on error
                 console.error("Error updating comment:", error);
+                (commentText as HTMLElement).innerHTML = renderMarkdown(previousContent);
+                (commentText as HTMLElement).setAttribute("data-original-content", escapeHtml(previousContent));
                 alert("Failed to update comment");
-                return;
               }
-
-              await loadComments();
             });
           } else {
             // Hide edit form, show comment text
@@ -833,10 +953,24 @@ const { slug } = Astro.props;
 
       document.querySelectorAll(".delete-btn").forEach((btn) => {
         btn.addEventListener("click", async (e) => {
-          const target = e.target as HTMLElement;
+          const target = e.currentTarget as HTMLElement;
           const commentId = target.getAttribute("data-comment-id");
+          const commentEl = target.closest(".comment-item");
 
           if (!confirm("Delete this comment?")) return;
+
+          // Optimistic delete - remove from DOM immediately
+          const removedHtml = commentEl?.outerHTML;
+          commentEl?.remove();
+
+          // Update comment count
+          const currentCount = parseInt(commentCount?.textContent || "0");
+          if (commentCount && currentCount > 0) {
+            commentCount.textContent = String(currentCount - 1);
+          }
+
+          // Invalidate cache
+          invalidateComments(slug);
 
           const { error } = await supabase
             .from("comments")
@@ -846,11 +980,10 @@ const { slug } = Astro.props;
 
           if (error) {
             console.error("Error deleting comment:", error);
-            alert("Failed to delete comment");
-            return;
+            alert("Failed to delete comment. Refreshing...");
+            // Reload on error to restore state
+            await loadComments(true);
           }
-
-          await loadComments();
         });
       });
     }
@@ -858,22 +991,102 @@ const { slug } = Astro.props;
     // Handle new comment submission
     async function submitComment() {
       const content = commentInput?.value.trim();
-      if (!content || !session?.user) return;
+      if (!content || !session?.user || !commentsList) return;
 
-      const { error } = await supabase.from("comments").insert({
-        post_slug: slug,
-        user_id: session.user.id,
-        content,
-      });
+      // Generate temporary ID for optimistic update
+      const tempId = `temp-${Date.now()}`;
+
+      // Build optimistic comment HTML
+      const optimisticHtml = `
+        <li class="comment-item" data-comment-id="${tempId}">
+          <div class="comment-row">
+            <div class="thread-line-cell"></div>
+            <div class="comment-main">
+              <img src="${currentUserProfile?.avatar_url || "/default-avatar.png"}" alt="${currentUserProfile?.username || "User"}" class="avatar rounded-full object-cover flex-shrink-0" />
+              <div class="comment-body flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">${currentUserProfile?.username || "Anonymous"}</span>
+                  <span class="text-xs text-zinc-500 dark:text-zinc-400">just now</span>
+                </div>
+                <div class="comment-text text-sm text-zinc-700 dark:text-zinc-200 mb-3 leading-relaxed" data-original-content="${escapeHtml(content)}">${renderMarkdown(content)}</div>
+                <div class="edit-form-container hidden mb-3"></div>
+                <div class="flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
+                  <button class="like-btn flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-300" data-comment-id="${tempId}" data-reaction="like" data-user-reaction="">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
+                    <span></span>
+                  </button>
+                  <button class="dislike-btn flex items-center gap-1 hover:text-zinc-700 dark:hover:text-zinc-300" data-comment-id="${tempId}" data-reaction="dislike" data-user-reaction="">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"></path></svg>
+                    <span></span>
+                  </button>
+                  <button class="reply-btn hover:text-zinc-700 dark:hover:text-zinc-300" data-parent-id="${tempId}">Reply</button>
+                  <button class="edit-btn hover:text-zinc-700 dark:hover:text-zinc-300" data-comment-id="${tempId}">Edit</button>
+                  <button class="delete-btn hover:text-red-500" data-comment-id="${tempId}">Delete</button>
+                </div>
+                <div class="reply-form-container hidden mt-3"></div>
+              </div>
+            </div>
+          </div>
+        </li>
+      `;
+
+      // Optimistic update - add to DOM immediately
+      const firstComment = commentsList.querySelector(".comment-item");
+      if (firstComment) {
+        firstComment.insertAdjacentHTML("beforebegin", optimisticHtml);
+      } else {
+        // No comments yet, replace the "no comments" message
+        commentsList.innerHTML = optimisticHtml;
+      }
+
+      // Update comment count
+      const currentCount = parseInt(commentCount?.textContent || "0");
+      if (commentCount) commentCount.textContent = String(currentCount + 1);
+
+      // Clear input
+      if (commentInput) commentInput.value = "";
+
+      // Send to server in background
+      const { data, error } = await supabase
+        .from("comments")
+        .insert({
+          post_slug: slug,
+          user_id: session.user.id,
+          content,
+        })
+        .select()
+        .single();
 
       if (error) {
+        // Remove optimistic comment on error
         console.error("Error posting comment:", error);
+        const tempComment = commentsList.querySelector(`[data-comment-id="${tempId}"]`);
+        tempComment?.remove();
+        if (commentCount) commentCount.textContent = String(currentCount);
         alert("Failed to post comment");
         return;
       }
 
-      if (commentInput) commentInput.value = "";
-      await loadComments();
+      // Invalidate cache since we added new comment
+      invalidateComments(slug);
+
+      // Update the temp ID with the real ID
+      const tempComment = commentsList.querySelector(`[data-comment-id="${tempId}"]`);
+      if (tempComment && data) {
+        tempComment.setAttribute("data-comment-id", data.id);
+        // Update all buttons with the real ID
+        tempComment.querySelectorAll(`[data-comment-id="${tempId}"]`).forEach(el => {
+          el.setAttribute("data-comment-id", data.id);
+        });
+        tempComment.querySelectorAll(`[data-parent-id="${tempId}"]`).forEach(el => {
+          el.setAttribute("data-parent-id", data.id);
+        });
+        // Attach handlers to the new comment
+        attachEditHandlers(session.user.id);
+        attachDeleteHandlers(session.user.id);
+        attachReactionHandlers(session.user.id);
+        attachReplyHandlers(session.user.id);
+      }
     }
 
     commentForm?.addEventListener("submit", async (e) => {
@@ -885,6 +1098,7 @@ const { slug } = Astro.props;
     commentInput?.addEventListener("keydown", async (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
         e.preventDefault();
+        e.stopPropagation();
         await submitComment();
       }
     });
@@ -898,80 +1112,99 @@ const { slug } = Astro.props;
 </script>
 
 <style is:global>
-  /* Comment Thread Container */
+  /* === Comment Thread Base Variables === */
   .comment-thread {
-    --thread-line-color: #d4d4d8; /* zinc-300 */
-    --thread-line-width: 1px;
-    --avatar-size: 2rem; /* 32px for all comments */
-    --connector-height: 20px;
-    --connector-width: 28px;
-    --connector-radius: 8px;
+    --avatar-size: 2rem;
+    --line-color: #d4d4d8;
+    --line-width: 2px;
+    --line-radius: 8px;
+    --indent: calc(var(--avatar-size) + 0.75rem); /* avatar + gap */
+    list-style: none;
+    padding: 0;
+    margin: 0;
   }
 
   .dark .comment-thread {
-    --thread-line-color: #52525b; /* zinc-600 */
+    --line-color: #52525b;
   }
 
-  /* Remove top margin from first comment */
-  #comments-list > .comment-item:first-child {
-    margin-top: 0 !important;
-  }
-
-  /* Comment Item Base */
+  /* === Comment Item (li) === */
   .comment-item {
+    list-style: none;
+    margin-top: 1rem;
     position: relative;
-    margin-top: 1.25rem;
   }
 
-  /* Avatar column should be above thread lines */
-  .avatar-column {
+  .comment-thread > .comment-item:first-child {
+    margin-top: 0;
+  }
+
+  /* === Comment Row - simple flex, no grid === */
+  .comment-row {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  /* Hide the thread-line-cell - we don't need it anymore */
+  .thread-line-cell {
+    display: none;
+  }
+
+  /* === Comment Main (avatar + body) === */
+  .comment-main {
+    display: flex;
+    gap: 0.75rem;
+    flex: 1;
+  }
+
+  .comment-main .avatar {
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+    flex-shrink: 0;
     position: relative;
     z-index: 1;
   }
 
-  /* Replies Container - indented for connectors */
-  .replies-container {
-    position: relative;
-    padding-left: calc(1rem + var(--connector-width));
+  /* === Nested Replies === */
+  .replies {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-left: calc(var(--avatar-size) / 2); /* Align with center of parent avatar */
+    padding-left: calc(var(--avatar-size) / 2 + 0.75rem); /* Rest of avatar + gap */
   }
 
-  /* L-connector for each reply */
-  .replies-container > .comment-item::before {
+  /* === Thread Lines === */
+
+  /* 1. Vertical line from parent with replies - positioned on the comment-item */
+  .comment-item.has-replies::after {
     content: "";
     position: absolute;
-    left: calc(-1 * var(--connector-width));
-    top: calc(-1.25rem); /* Extend up through margin */
-    height: calc(var(--avatar-size) / 2 + 1.25rem);
-    width: var(--connector-width);
-    border-left: var(--thread-line-width) solid var(--thread-line-color);
-    border-bottom: var(--thread-line-width) solid var(--thread-line-color);
-    border-bottom-left-radius: var(--connector-radius);
+    left: calc(var(--avatar-size) / 2 - var(--line-width) / 2);
+    top: var(--avatar-size);
+    bottom: 0;
+    width: var(--line-width);
+    background: var(--line-color);
   }
 
-  /* First reply extends higher to reach parent */
-  .replies-container > .comment-item:first-child::before {
-    top: calc(-1.25rem - 1rem - 2rem);
-    height: calc(var(--avatar-size) / 2 + 4.5rem);
-  }
-
-  /* Non-last replies extend down to next sibling */
-  .replies-container > .comment-item:not(:last-child)::after {
+  /* 2. L-connector for each reply */
+  .replies > .comment-item::before {
     content: "";
     position: absolute;
-    left: calc(-1 * var(--connector-width));
-    top: calc(var(--avatar-size) / 2);
-    bottom: calc(-1.25rem);
-    width: var(--thread-line-width);
-    background-color: var(--thread-line-color);
+    left: calc(-1 * (var(--avatar-size) / 2 + 0.75rem)); /* Back to parent's vertical line */
+    top: calc(-1rem);
+    width: calc(var(--avatar-size) / 2 + 0.75rem + var(--avatar-size) / 2);
+    height: calc(var(--avatar-size) / 2 + 1rem);
+    border-left: var(--line-width) solid var(--line-color);
+    border-bottom: var(--line-width) solid var(--line-color);
+    border-bottom-left-radius: var(--line-radius);
+    border-right: none;
+    border-top: none;
   }
 
-  /* Thread lines toggle */
-  .comment-thread[style*="--lines: false"]
-    .replies-container
-    > .comment-item::before,
-  .comment-thread[style*="--lines: false"]
-    .replies-container
-    > .comment-item::after {
+  /* === Toggle Lines Off === */
+  .comment-thread[style*="--lines: false"] .comment-item::before,
+  .comment-thread[style*="--lines: false"] .comment-item::after {
     display: none;
   }
 </style>
