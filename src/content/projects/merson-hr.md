@@ -5,8 +5,9 @@ image: "/images/projects/merson.png"
 year: "2024"
 status: "Completed"
 tags: ["React", "Typescript", "Node.js", "GraphQL", "MongoDB"]
-link: "https://mersonhr.com/"
-linkText: "Visit Merson HR →"
+links:
+  - url: "https://mersonhr.com/"
+    text: "Visit Merson HR →"
 featured: true
 order: 2
 type: "work"

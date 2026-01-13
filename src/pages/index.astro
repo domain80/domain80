@@ -111,16 +111,25 @@ const workProjects = allProjects
                     {project.data.tags.map((tag) => <Badge variant="tech">{tag}</Badge>)}
                   </div>
 
-                  {project.data.link && (
-                    <a
-                      href={project.data.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="inline-flex items-center gap-1 text-sm text-accent hover:text-accent-dark transition-colors"
-                    >
-                      <span>{project.data.linkText || "View project →"}</span>
-                      <Icon name="tabler:external-link" class="w-4 h-4" />
-                    </a>
+                  {project.data.links && project.data.links.length > 0 && (
+                    <div class="flex flex-wrap items-center gap-3">
+                      {project.data.links.map((link, i) => (
+                        <>
+                          <a
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center gap-1 text-sm text-accent hover:text-accent-dark transition-colors"
+                          >
+                            <span>{link.text}</span>
+                            <Icon name="tabler:external-link" class="w-4 h-4" />
+                          </a>
+                          {i < project.data.links.length - 1 && (
+                            <span class="w-px h-4 bg-zinc-300 dark:bg-zinc-600"></span>
+                          )}
+                        </>
+                      ))}
+                    </div>
                   )}
                 </article>
               </div>
@@ -171,16 +180,25 @@ const workProjects = allProjects
                     {project.data.tags.map((tag) => <Badge variant="tech">{tag}</Badge>)}
                   </div>
 
-                  {project.data.link && (
-                    <a
-                      href={project.data.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="inline-flex items-center gap-1 text-sm text-accent hover:text-accent-dark transition-colors"
-                    >
-                      <span>{project.data.linkText || "View project →"}</span>
-                      <Icon name="tabler:external-link" class="w-4 h-4" />
-                    </a>
+                  {project.data.links && project.data.links.length > 0 && (
+                    <div class="flex flex-wrap items-center gap-3">
+                      {project.data.links.map((link, i) => (
+                        <>
+                          <a
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center gap-1 text-sm text-accent hover:text-accent-dark transition-colors"
+                          >
+                            <span>{link.text}</span>
+                            <Icon name="tabler:external-link" class="w-4 h-4" />
+                          </a>
+                          {i < project.data.links.length - 1 && (
+                            <span class="w-px h-4 bg-zinc-300 dark:bg-zinc-600"></span>
+                          )}
+                        </>
+                      ))}
+                    </div>
                   )}
                 </article>
               </div>

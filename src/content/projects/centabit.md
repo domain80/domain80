@@ -4,8 +4,11 @@ description: "A local-first budgeting app featuring offline-sync with conflict r
 year: "2025"
 status: "Ongoing"
 tags: ["Flutter", "Go", "SQLite", "REST APIs"]
-link: "https://domain80.github.io/centabit_v0.5/"
-linkText: "View Project"
+links:
+  - url: "https://domain80.github.io/centabit_v0.5/"
+    text: "View Project"
+  - url: "https://tally.so/r/eqQo4k"
+    text: "Join Free Waitlist"
 type: "personal"
 featured: true
 order: 2

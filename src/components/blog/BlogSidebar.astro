@@ -13,16 +13,18 @@ const { allTags, totalPosts } = Astro.props;
 
 <div class="space-y-6">
   <!-- Back to Home -->
-  <a
-    href="/"
-    class="inline-flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent dark:hover:text-accent transition-colors mt-6"
-  >
-    <Icon name="tabler:arrow-left" class="w-4 h-4" />
-    Home
-  </a>
+  <div class="flex gap-8 items-center">
+    <a
+      href="/"
+      class="inline-flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent dark:hover:text-accent transition-colors"
+    >
+      <Icon name="tabler:arrow-left" class="w-4 h-4" />
+      Home
+    </a>
 
-  <!-- Theme Toggle -->
-  <ThemeToggle />
+    <!-- Theme Toggle -->
+    <ThemeToggle />
+  </div>
   <!-- Page Title -->
   <h1 class="text-5xl font-bold text-zinc-900 dark:text-zinc-100">All Posts</h1>
 

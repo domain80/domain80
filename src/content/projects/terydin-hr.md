@@ -6,8 +6,9 @@ year: "2024"
 endYear: "Present"
 status: "Ongoing"
 tags: ["Flutter", "React", "Typescript", "Java", "SpringBoot", "PostgreSQL"]
-link: "https://terydin.co"
-linkText: "Visit Terydin →"
+links:
+  - url: "https://terydin.co"
+    text: "Visit Terydin →"
 featured: true
 order: 1
 type: "work"
