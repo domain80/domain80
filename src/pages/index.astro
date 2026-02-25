@@ -13,6 +13,19 @@ const latestPosts = allPosts
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
   .slice(0, 3);
 
+// Get project updates (grouped by project)
+const allUpdates = await getCollection("projectUpdates");
+const updatesByProject = new Map<string, typeof allUpdates>();
+for (const update of allUpdates.filter((u) => !u.data.draft)) {
+  const list = updatesByProject.get(update.data.project) ?? [];
+  list.push(update);
+  updatesByProject.set(update.data.project, list);
+}
+// Sort each project's updates by date descending
+for (const [key, list] of updatesByProject) {
+  list.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+}
+
 // Get featured projects
 const allProjects = await getCollection("projects");
 
@@ -131,6 +144,33 @@ const workProjects = allProjects
                       ))}
                     </div>
                   )}
+
+                  {(() => {
+                    const updates = updatesByProject.get(project.id);
+                    if (!updates || updates.length === 0) return null;
+                    const latest = updates[0];
+                    const latestSlug = latest.id.split("/").pop()!;
+                    return (
+                      <div class="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+                        <Icon name="tabler:news" class="w-4 h-4" />
+                        <span class="font-medium">{updates.length} {updates.length === 1 ? "update" : "updates"}</span>
+                        <span class="text-zinc-300 dark:text-zinc-600">&middot;</span>
+                        <a
+                          href={`/projects/${project.id}/updates/${latestSlug}`}
+                          class="text-accent hover:text-accent-dark transition-colors truncate max-w-48"
+                        >
+                          {latest.data.title}
+                        </a>
+                        <span class="text-zinc-300 dark:text-zinc-600">&middot;</span>
+                        <a
+                          href={`/projects/${project.id}`}
+                          class="text-accent hover:text-accent-dark transition-colors whitespace-nowrap"
+                        >
+                          View all →
+                        </a>
+                      </div>
+                    );
+                  })()}
                 </article>
               </div>
             );

@@ -1,0 +1,49 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import ProjectUpdateLayout from "../../../../layouts/ProjectUpdateLayout.astro";
+
+export async function getStaticPaths() {
+  const updates = await getCollection("projectUpdates");
+  const projects = await getCollection("projects");
+
+  return updates
+    .filter((update) => !update.data.draft)
+    .map((update) => {
+      const project = projects.find((p) => p.id === update.data.project);
+      // The update ID from glob loader is "project-slug/update-slug"
+      const slug = update.id.split("/").pop()!;
+
+      return {
+        params: {
+          project: update.data.project,
+          slug,
+        },
+        props: {
+          update,
+          projectTitle: project?.data.title ?? update.data.project,
+        },
+      };
+    });
+}
+
+type Props = {
+  update: CollectionEntry<"projectUpdates">;
+  projectTitle: string;
+};
+
+const { update, projectTitle } = Astro.props;
+const projectSlug = update.data.project;
+const { Content, headings } = await render(update);
+---
+
+<ProjectUpdateLayout
+  title={update.data.title}
+  description={update.data.description}
+  date={update.data.date}
+  tags={update.data.tags}
+  projectTitle={projectTitle}
+  projectSlug={projectSlug}
+  headings={headings}
+>
+  <Content />
+</ProjectUpdateLayout>
