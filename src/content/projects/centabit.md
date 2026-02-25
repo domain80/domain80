@@ -11,7 +11,7 @@ links:
     text: "Join Free Waitlist"
 type: "personal"
 featured: true
-order: 2
+order: 3
 ---
 
 ## Join the free waitlist today!
